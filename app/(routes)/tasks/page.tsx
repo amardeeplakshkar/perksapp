@@ -146,7 +146,7 @@ export default function Tasks() {
             },
         ],
         InGame: [
-            { id: "G07f1f77bcf86cd799439001", icon: "amardeep04", title: "Complete Profile", reward: 5000, status: "0/1" },
+            { id: "G07f1f77bcf86cd799439001", icon: "dogs", title: "Complete Profile", reward: 5000, status: "0/1" },
             { id: "G07f1f77bcf86cd799439002", icon: "github", title: "Verify Email", reward: 3000, status: "1/1", onClick: () => router.push('/') },
             { id: "G07f1f77bcf86cd799439003", icon: "gitlab", title: "Join Telegram", reward: 2000, status: "calculating" },
             { id: "G07f1f77bcf86cd799439004", icon: "bitbucket", title: "Follow on Twitter", reward: 4000, status: "0/1" },

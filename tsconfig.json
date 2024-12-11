@@ -20,14 +20,19 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "baseUrl": ".",  // This enables the usage of paths
+    "paths": {
+      "@shadcn/*": ["node_modules/@shadcn/ui/*"]  // Define the import alias for ShadCN
+    }
   },
   "include": [
     "next-env.d.ts",
     ".next/types/**/*.ts",
     "**/*.ts",
-    "**/*.tsx"
-, "app/(routes)/game/page.jsx"  ],
+    "**/*.tsx",
+    "app/(routes)/game/page.jsx"
+  ],
   "exclude": [
     "node_modules"
   ]

@@ -19,7 +19,7 @@ const ReferralLink: React.FC<ReferralLinkProps> = ({ telegramId }) => {
       <h3 className="text-lg font-semibold mb-2">Your Referral Link</h3>
       <div className="flex items-center gap-2">
         <div className="bg-background p-2 rounded flex-1 overflow-hidden text-sm">
-          <p className="truncate">{referralLink}</p>
+          <p className="truncate w-[45dvw] ">{referralLink}</p>
         </div>
         <Button onClick={copyToClipboard} className="">
           Copy
