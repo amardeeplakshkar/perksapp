@@ -9,5 +9,9 @@ export default function Home() {
     router.push("/dashboard");
   }, [router]);
 
-  return null; 
+  return(
+    <>
+    naatu naatu
+    </>
+  ); 
 }

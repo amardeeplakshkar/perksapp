@@ -37,14 +37,16 @@ const WelcomeSlider = () => {
         }
     }, []);
 
+
+    
     // Fetch user data
     useEffect(() => {
         if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
             const tg = window.Telegram.WebApp;
             tg.ready();
-
+    
             const initDataUnsafe = tg.initDataUnsafe || { user };
-
+    
             if (initDataUnsafe.user) {
                 fetch('/api/user', {
                     method: 'POST',
@@ -57,6 +59,8 @@ const WelcomeSlider = () => {
                             setError(data.error);
                         } else {
                             setUser(data || {});
+    
+                            // Pass the `telegramId` directly to `fetchLeaderboard`
                         }
                         setLoading(false);
                     })
@@ -64,44 +68,53 @@ const WelcomeSlider = () => {
                         setError('Failed to fetch user data: ' + err.message);
                         setLoading(false);
                     });
+                } else {
+                    setError('No user data available');
+                    setLoading(false);
+                }
             } else {
-                setError('No user data available');
+                setError('This app should be opened in Telegram');
                 setLoading(false);
             }
-        } else {
-            setError('This app should be opened in Telegram');
-            setLoading(false);
+        }, []);
+        
+        
+        const fetchLeaderboard = async (telegramId) => {
+            console.log('fetchLeaderboard called with telegramId:', telegramId);
+    
+        if (!telegramId) {
+            console.error('No telegramId provided to fetchLeaderboard.');
+            return;
         }
-    }, []);
-
-
-    const fetchLeaderboard = async (telegramId) => {
+    
         const apiUrl = `https://api.onetime.dog/leaderboard?user_id=${telegramId}`;
-
+        console.log('API URL:', apiUrl);
+        
         try {
             const response = await fetch(apiUrl, {
                 method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                },
             });
-
+    
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
-
+    
             const responseData = await response.json();
+            console.log('API response data:', responseData);
+    
             const userScore = responseData["me"].score;
-            console.log('Leaderboard Data:', userScore);
-            setDogsScore(500);
+            console.log('User Score:', userScore);
+            setDogsScore(userScore);
         } catch (error) {
-            console.error('Error fetching leaderboard data:', error);
+            console.error('Error fetching leaderboard data:', error.message);
+            
+            // Retry or provide fallback data
+            setDogsScore(0); 
         }
     };
-
-    const telegramId = user?.telegramId;
-    fetchLeaderboard(telegramId);
-
+    
+    fetchLeaderboard(user?.telegramId);
+    
 
     const handleClaimPoints = async () => {
         const end = Date.now() + 3 * 1000;
@@ -192,8 +205,9 @@ const WelcomeSlider = () => {
         sliderRef.current?.slickNext();
     };
 
+ 
     return (
-        <div className="max-w-[100dvw] overflow-hidden bg-black text-white bg-[url('https://i.pinimg.com/originals/cf/ec/88/cfec8819d8376a57c86e3c6e53ed618e.gif')]">      
+        <div className="max-w-[100dvw] overflow-hidden bg-black text-white bg-[url('https://i.pinimg.com/originals/cf/ec/88/cfec8819d8376a57c86e3c6e53ed618e.gif')]">
             <Globe className="absolute top-[70dvh] " />
             <div className="fixed top-0 left-0 w-full flex bg-gray-800">
                 {Array.from({ length: totalSlides }).map((_, index) => (
@@ -230,7 +244,7 @@ const WelcomeSlider = () => {
                             <AvatarImage src='https://res.cloudinary.com/duscymcfc/image/upload/f_auto,q_auto/v1/perks/notcoin' />
                         </Avatar>
                     </div>
-                    <h1 className="text-5xl font-bold text-center mb-4">{(0).toLocaleString()}</h1>
+                    <h1 className="text-5xl font-bold text-center mb-4">{dogsScore}</h1>
                     <div className="absolute bottom-[2rem] w-full flex justify-center items-center">
                         <button
                             onClick={handleNext}
@@ -294,7 +308,7 @@ const WelcomeSlider = () => {
                     </div>
                 </div>
 
-                {/* Slide 2 */}
+          
                 <div className="flex flex-col items-center justify-center h-dvh py-[1rem] relative">
                     <div className="px-2">
                         <p className="uppercase text-muted-foreground/80 text-sm">Congratulations</p>

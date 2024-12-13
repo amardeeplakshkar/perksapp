@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card } from './ui/card';
 import { ScrollArea } from './ui/scroll-area';
+import { Avatar, AvatarFallback } from './ui/avatar';
 
 interface Referral {
   username: string;
@@ -27,6 +28,12 @@ const ReferralList: React.FC<ReferralListProps> = ({ referrals }) => {
                 key={index}
                 className="flex items-center justify-between p-3 bg-foreground/5 rounded-lg"
               >
+                <div className='flex justify-center items-center gap-4'>
+                <Avatar >
+                  <AvatarFallback className='bg-red-500/70'>
+                  {referral.username?.[0] || `${referral.firstName?.[0] || ''}${referral.lastName?.[0] || ''}`.trim()}
+                  </AvatarFallback>
+                </Avatar>
                 <div>
                   <p className="font-medium">
                     {referral.username || `${referral.firstName} ${referral.lastName}`.trim()}
@@ -36,7 +43,9 @@ const ReferralList: React.FC<ReferralListProps> = ({ referrals }) => {
                       Joined {new Date(referral.joinedAt).toLocaleDateString()}
                     </p>
                   )}
+                  </div>
                 </div>
+                <>500</>
               </div>
             ))}
           </div>

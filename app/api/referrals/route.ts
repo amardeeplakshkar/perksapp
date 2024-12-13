@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       data: {
         telegramId: parseInt(userId),
         referredByTelegramId: referrer.telegramId,
-        isNewUser: false, // Mark user as not new once referred
+        isNewUser: false,
       },
     });
 
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       newUser,
-      referrerPoints: referrer.points + 500
+      referrerPoints: 500
     });
   } catch (error) {
     console.error('Error saving referral:', error);

@@ -6,7 +6,6 @@ import ReferralLink from '../../../components/ReferralLink';
 import ReferralStats from '../../../components/ReferralStats';
 import ReferralList from '../../../components/ReferralList';
 import { toast } from 'react-hot-toast';
-import { ScrollArea, ScrollBar } from 'components/ui/scroll-area';
 
 const FriendsPage = () => {
   const [userId, setUserId] = useState<string>('');
@@ -55,10 +54,7 @@ const FriendsPage = () => {
     <div className="flex flex-col h-[88dvh]">
       <div className="p-4 flex-1">
         <Heading title="Referrals" desc="for" desc2="inviting friends" />
-
-        <ReferralLink telegramId={userId} />
         {userId && <ReferralLink telegramId={userId} />}
-
         <ReferralStats
           totalReferrals={stats.totalReferrals}
           totalEarned={stats.totalEarned}

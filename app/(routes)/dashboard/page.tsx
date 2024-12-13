@@ -27,48 +27,44 @@ const Dashboard: React.FC = () => {
         const initData = WebApp.initData;
         const userId = WebApp.initDataUnsafe.user?.id.toString() || '';
         const startParam = WebApp.initDataUnsafe.start_param || '';
-
+  
+        console.log("initWebApp initialized with:", { initData, userId, startParam });
+  
         // Set the state
         setInitData(initData);
         setUserId(userId);
         setStartParam(startParam);
-
-        checkReferral();
+  
+        // Call checkReferral with the current values
+        if (startParam && userId) {
+          checkReferral(userId, startParam);
+        }
       }
     };
-
+  
     initWebApp();
-  }, []);
-
-  const checkReferral = async () => {
-    console.log("checkReferral function called");
-    if (startParam && userId) {
+  }, []); // Ensure this runs only once
+  
+  const checkReferral = async (currentUserId, currentStartParam) => {
+    console.log("checkReferral function called with:", { currentUserId, currentStartParam });
+    if (currentStartParam && currentUserId) {
       try {
-        console.log("startParam:", startParam, "userId:", userId);
         const referralResponse = await fetch('/api/referrals', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId, referrerId: startParam }),
+          body: JSON.stringify({ userId: currentUserId, referrerId: currentStartParam }),
         });
-
+  
         if (!referralResponse.ok) throw new Error('Failed to save referral');
-        const pointsResponse = await fetch('/api/claim-points', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            telegramId: startParam,
-            points: 500,
-          }),
-        });
-
-        if (!pointsResponse.ok) throw new Error('Failed to add points');
-
-        console.log('Points added successfully');
+        console.log("Referral saved successfully");
       } catch (error) {
         console.error('Error during referral:', error);
       }
+    } else {
+      console.log("Referral not triggered. Missing parameters:", { currentUserId, currentStartParam });
     }
   };
+  
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -105,7 +101,7 @@ const Dashboard: React.FC = () => {
             }
           } finally {
             setLoading(false);
-            checkReferral(); // Check referral after fetching user data
+            checkReferral(userId, startParam); // Check referral after fetching user data
           }
         } else {
           const noUserError = "No user data available";

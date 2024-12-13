@@ -6,7 +6,7 @@ interface ReferralLinkProps {
 }
 
 const ReferralLink: React.FC<ReferralLinkProps> = ({ telegramId }) => {
-  const referralLink = `https://t.me/PerksCryptoBot/perks?startapp=${telegramId}`;
+  const referralLink = `https://t.me/majorwithdrawbot/perks?startapp=${telegramId}`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(referralLink)
@@ -19,7 +19,7 @@ const ReferralLink: React.FC<ReferralLinkProps> = ({ telegramId }) => {
       <h3 className="text-lg font-semibold mb-2">Your Referral Link</h3>
       <div className="flex items-center gap-2">
         <div className="bg-background p-2 rounded flex-1 overflow-hidden text-sm">
-          <p className="truncate w-[45dvw] ">{referralLink}</p>
+          <p className="truncate w-[80%] ">{referralLink}</p>
         </div>
         <Button onClick={copyToClipboard} className="">
           Copy

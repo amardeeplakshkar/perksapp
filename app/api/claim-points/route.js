@@ -36,7 +36,6 @@ export async function POST(request) {
       data: {
         points: user.points + points,
         hasClaimedWelcomePoints: true,
-        isNewUser: false,
       },
     });
 

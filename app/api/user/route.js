@@ -16,7 +16,18 @@ export async function GET(req) {
 
     const user = await prisma.user.findUnique({
       where: { telegramId: parseInt(telegramId) },
-      include: { taskCompletions: true },
+      include: {
+        taskCompletions: true,
+        referrals: {
+          select: {
+            telegramId: true,
+            username: true,
+            firstName: true,
+            lastName: true,
+            createdAt: true,
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -24,7 +35,9 @@ export async function GET(req) {
     }
 
     // Ensure taskCompletions is defined and is an array
-    const completedTaskIds = user.taskCompletions ? user.taskCompletions.map((tc) => tc.taskId) : [];
+    const completedTaskIds = user.taskCompletions
+      ? user.taskCompletions.map((tc) => tc.taskId)
+      : [];
 
     return NextResponse.json({
       telegramId: user.telegramId,
@@ -33,7 +46,15 @@ export async function GET(req) {
       lastName: user.lastName,
       points: user.points,
       hasClaimedWelcomePoints: user.hasClaimedWelcomePoints,
-      dailyPlays: user.dailyPlays, // Include dailyPlays here
+      dailyPlays: user.dailyPlays,
+      referredByTelegramId: user.referredByTelegramId, // Include referral info
+      referrals: user.referrals.map((referral) => ({
+        telegramId: referral.telegramId,
+        username: referral.username,
+        firstName: referral.firstName,
+        lastName: referral.lastName,
+        joinedAt: referral.createdAt,
+      })),
       completedTaskIds,
     });
   } catch (error) {
@@ -57,12 +78,15 @@ export async function POST(req) {
       );
     }
 
+    const referrerId = userData.referrerId || null;
+
     let user = await prisma.user.findUnique({
       where: { telegramId: userData.id },
       include: { taskCompletions: true },
     });
 
     if (!user) {
+      // New user creation logic
       user = await prisma.user.create({
         data: {
           telegramId: userData.id,
@@ -71,13 +95,30 @@ export async function POST(req) {
           lastName: userData.last_name || "",
           points: 0,
           hasClaimedWelcomePoints: false,
-          dailyPlays: 0, // Initialize dailyPlays if creating a new user
+          dailyPlays: 0,
+          referredByTelegramId: referrerId ? parseInt(referrerId) : null, // Attach referrer if provided
         },
       });
+
+      // Award points to the referrer if applicable
+      if (referrerId) {
+        const referrer = await prisma.user.findUnique({
+          where: { telegramId: parseInt(referrerId) },
+        });
+
+        if (referrer) {
+          await prisma.user.update({
+            where: { telegramId: referrer.telegramId },
+            data: { points: { increment: 500 } }, // Award 500 points
+          });
+        }
+      }
     }
 
     // Ensure taskCompletions is defined and is an array
-    const completedTaskIds = user.taskCompletions ? user.taskCompletions.map((tc) => tc.taskId) : [];
+    const completedTaskIds = user.taskCompletions
+      ? user.taskCompletions.map((tc) => tc.taskId)
+      : [];
 
     return NextResponse.json({
       telegramId: user.telegramId,
@@ -86,7 +127,8 @@ export async function POST(req) {
       lastName: user.lastName,
       points: user.points,
       hasClaimedWelcomePoints: user.hasClaimedWelcomePoints,
-      dailyPlays: user.dailyPlays, // Include dailyPlays here
+      dailyPlays: user.dailyPlays,
+      referredByTelegramId: user.referredByTelegramId, // Include referral info
       completedTaskIds,
     });
   } catch (error) {

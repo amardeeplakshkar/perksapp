@@ -1,198 +1,116 @@
-'use client'
+
 import { Card } from '../../../components/ui/card';
 import { ScrollArea } from '../../../components/ui/scroll-area';
 import { LiveEmoji } from 'liveemoji'
-import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
-import toast from 'react-hot-toast';
 import { FaAward, FaCrown } from 'react-icons/fa';
+import { Skeleton } from 'components/ui/skeleton';
+import { Separator } from 'components/ui/separator';
+import UserCard from 'components/userCard';
 
-const tasks = [
-  { "border": "border-2", "id": 1, "rank": "🥇", "username": "imGet", "reward": "84,597,773 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 2, "rank": "🥈", "username": "Pishnahad_Sup", "reward": "60,105,774 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 3, "rank": "🥉", "username": "Esalat", "reward": "52,155,586 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 4, "rank": "#4", "username": "mehranseydi", "reward": "50,696,750 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 5, "rank": "#5", "username": "abbas", "reward": "46,196,284 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 6, "rank": "#6", "username": "Dimker77", "reward": "37,235,160 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 7, "rank": "#7", "username": "ladesov", "reward": "34,876,302 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 8, "rank": "#8", "username": "CenterProd", "reward": "34,588,476 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 9, "rank": "#9", "username": "xaffizmedia", "reward": "32,921,791 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 10, "rank": "#10", "username": "tuxeoqt", "reward": "31,681,983 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 11, "rank": "#11", "username": "Roboland_Support", "reward": "28,889,012 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 12, "rank": "#12", "username": "TrungAnh9999", "reward": "26,574,736 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 13, "rank": "#13", "username": "s0meone_u_know", "reward": "23,998,299 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 14, "rank": "#14", "username": "putinhuylo_v_gaage", "reward": "23,133,944 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 15, "rank": "#15", "username": "Mehran_087", "reward": "22,829,594 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 16, "rank": "#16", "username": "SlavaSemenchuk", "reward": "21,544,260 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 17, "rank": "#17", "username": "flasher888", "reward": "21,420,971 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 18, "rank": "#18", "username": "Skulkandy", "reward": "21,400,032 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 19, "rank": "#19", "username": "Dokievero", "reward": "20,893,727 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 20, "rank": "#20", "username": "danyaqp", "reward": "20,224,079 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 21, "rank": "#21", "username": "allinrekt", "reward": "20,046,984 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 22, "rank": "#22", "username": "LeviAckermmann", "reward": "19,870,256 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 23, "rank": "#23", "username": "Shahrrraam", "reward": "18,653,664 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 24, "rank": "#24", "username": "GraphMessengerDev", "reward": "18,025,887 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 25, "rank": "#25", "username": "crptanec", "reward": "16,988,964 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 26, "rank": "#26", "username": "itwogd", "reward": "16,843,833 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 27, "rank": "#27", "username": "Anonym", "reward": "16,019,946 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 28, "rank": "#28", "username": "Btc_mans", "reward": "15,571,981 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 29, "rank": "#29", "username": "jimsotter", "reward": "15,209,522 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 30, "rank": "#30", "username": "yesDave", "reward": "15,094,533 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 31, "rank": "#31", "username": "Im_mmd_ho3in", "reward": "15,041,008 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 32, "rank": "#32", "username": "elkanadi", "reward": "14,662,294 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 33, "rank": "#33", "username": "Sharad_121", "reward": "14,236,408 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 34, "rank": "#34", "username": "AlirezaQPC", "reward": "14,071,506 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 35, "rank": "#35", "username": "moohsen", "reward": "13,730,423 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 36, "rank": "#36", "username": "AbTiN_AK47", "reward": "13,509,271 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 37, "rank": "#37", "username": "Sadjatt", "reward": "13,236,246 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 38, "rank": "#38", "username": "Mirniyozov_Samandar", "reward": "12,801,000 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 39, "rank": "#39", "username": "Broken_ThomasShelby", "reward": "12,685,088 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 40, "rank": "#40", "username": "investeduard", "reward": "12,522,981 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 41, "rank": "#41", "username": "amiir_roman", "reward": "12,226,464 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 42, "rank": "#42", "username": "MaMaL", "reward": "11,789,598 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 43, "rank": "#43", "username": "faraz_mandaa", "reward": "11,622,096 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 44, "rank": "#44", "username": "Q700k", "reward": "11,577,665 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 45, "rank": "#45", "username": "alexmvp", "reward": "11,554,986 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 46, "rank": "#46", "username": "mamad0901", "reward": "11,532,007 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 47, "rank": "#47", "username": "mambik", "reward": "11,298,085 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 48, "rank": "#48", "username": "dnevnikutra", "reward": "11,156,680 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 49, "rank": "#49", "username": "ahlawyEG", "reward": "10,881,532 PERKS", "bottom": "border-b-[1px]" },
-  { "border": "border-2", "id": 50, "rank": "#50", "username": "TelegaMAT", "reward": "10,825,309 PERKS" }
-]
-  ;
-const Leader = () => {
-  const [user, setUser] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter(); // Initialize Next.js router
-  const [initData, setInitData] = useState('');
-  const [userId, setUserId] = useState('');
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (typeof window !== "undefined" && window.Telegram?.WebApp) {
-        const tg = window.Telegram.WebApp;
-        tg.ready();
+type LeaderboardData = {
+  username: string;
+  balance: number;
+  chatId: number;
+};
 
-        const initDataUnsafe = tg.initDataUnsafe || { user };
+const Leaderboard = async () => {
+  // const { userData, loading, error, userId } = useUserData();
+  const res = await fetch('https://api.paws.community/v1/user/leaderboard?page=0&limit=100', {
+    headers: {
+      Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxMDI2ODQxMTQsImlhdCI6MTczNDA5NDU2NywiZXhwIjoxNzM0MTgwOTY3fQ.UDqYfCrzdmXrVOYXjhWfhR5gQJa72df0y1mLz4y0K4o',
+    },
+  });
 
-        if (initDataUnsafe.user) {
-          try {
-            const response = await fetch("/api/user", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(initDataUnsafe.user),
-            });
+  const data = await res.json();
 
-            const data = await response.json();
+  if (!data.success) {
+    return <div>Failed to load leaderboard data</div>;
+  }
 
-            if (response.ok) {
-              setUser(data || {});
-              if (!data.hasClaimedWelcomePoints) {
-                router.push("/welcome");
-              }
-            } else {
-              throw new Error(data.error || "Failed to fetch user data");
-            }
-          } catch (err) {
-            const errorMsg = "Failed to fetch user data: " + err.message;
-            setError(errorMsg);
-            toast.error(errorMsg); // Show toast for fetch error
-            if (err.message === "Internal server error") {
-              tg.close(); // Close the mini app on internal server error
-            }
-          } finally {
-            setLoading(false);
-          }
-        } else {
-          const noUserError = "No user data available";
-          setError(noUserError);
-          toast.error(noUserError); // Show toast for no user data
-          setUser({});
-          setLoading(false);
-        }
-      } else {
-        const appError = "This app should be opened in Telegram";
-        setError(appError);
-        toast.error(appError); // Show toast for app error
-        setLoading(false);
-      }
-    };
+  const leaderboardData: LeaderboardData[] = data.data.list;
 
-    fetchUserData();
-  }, [router]);
-  const getBackgroundClass = (rank: string) => {
+  const getBackgroundClass = (rank: number) => {
     switch (rank) {
-      case "🥇":
-        return "bg-[#ffec451a]";
-      case "🥈":
-        return "bg-[#c7c7c71a]";
-      case "🥉":
-        return "bg-[#ffa2451a]";
+      case 1:
+        return "bg-[#ffec451a]"; // Gold
+      case 2:
+        return "bg-[#c7c7c71a]"; // Silver
+      case 3:
+        return "bg-[#ffa2451a]"; // Bronze
       default:
-        return "";
+        return ""; // Default
     }
   };
-
   return (
-    <div className='flex flex-col'>
-      <div className='flex-1 flex flex-col items-center'>
-        <LiveEmoji icon="Trophy" size={"5rem"} className='no-interaction' />
-        <p className='p-2 font-bold text-2xl'>Leaderboard</p>
-        <main className='text-sm w-full flex justify-between items-center p-2 bg-muted-foreground/10 rounded-xl'>
-          <p>Total</p>
-          <p>35,518,571 users</p>
-        </main>
-        <div className='w-full shine-effect mt-2 bg-foreground/5 rounded-xl'>
-          <div className={`pr-2`}>
-            <div className="p-4 py-2  flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div
-                  className={`rounded-xl p-3 border-foreground bg-black`}
-                >
-                  <FaAward />
+    <div>
+      <div className='flex flex-col w-full'>
+        <div className='flex-1 flex flex-col items-center'>
+          <LiveEmoji icon="Trophy" size={"5rem"} className='no-interaction' />
+          <p className='p-2 font-bold text-2xl'>Leaderboard</p>
+          <main className='text-sm w-full flex justify-between items-center p-2 bg-muted-foreground/10 rounded-xl'>
+            <p>Total</p>
+            <p>35,518,571 users</p>
+          </main>
+          <div className='w-full shine-effect mt-2 bg-foreground/5 rounded-xl'>
+            <div className={`pr-2`}>
+              <div className="p-4 py-2  flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className={`rounded-xl p-3 border-foreground bg-black`}>
+                    <FaAward />
+                  </div>
+                 <UserCard/>
                 </div>
-                <div>
-                  <h3 className=" text-base font-semibold">{user?.telegramId || user?.firstName || "Perks User"}</h3>
-                  <p className="">
-                    {user?.points !== undefined && user?.points !== null
-                      ? user.points.toLocaleString()
-                      : "0"}
-                  </p>
+                <div className="text-right ">
+                  <FaCrown />
                 </div>
-              </div>
-              <div className="text-right ">
-                <FaCrown />
               </div>
             </div>
           </div>
+          <Card className="w-full mt-2">
+            <ScrollArea className="rounded-xl w-full bg-muted-foreground/10 overflow-x-hidden h-[50dvh]">
+              {leaderboardData.map((user, index) => {
+                const position = leaderboardData.length + index - 99; 
+                const isMedal = position <= 3;
+
+                const medalEmoji = isMedal
+                  ? position === 1
+                    ? '🥇'
+                    : position === 2
+                      ? '🥈'
+                      : '🥉'
+                  : null;
+
+                  const backgroundClass = getBackgroundClass(position);
+
+                return (
+                  <div key={index} className={` border-gray-500/30 ${backgroundClass}`}>
+                    <div className="p-4 flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className={`rounded-[.3rem] p-2 border-foreground bg-white`}>
+                          <FaAward fill="black" />
+                        </div>
+                        <div>
+                          <h3 className="text-base font-semibold">{user.username}</h3>
+                          <p className="text-muted-foreground text-sm">
+                            {user.balance.toLocaleString()} PERKS
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right pr-2">
+                        {medalEmoji || position}
+                      </div>
+                    </div>
+                    {index !== leaderboardData.length - 1 && <Separator />}
+                  </div>
+                );
+              })}
+            </ScrollArea>
+          </Card>
         </div>
-        <Card className='w-full mt-2'>
-          <ScrollArea className='rounded-xl overflow-hidden w-full bg-muted-foreground/10 h-[50dvh]'>
-            {tasks.map((task) => (
-              <div key={task.id} className={`pr-2 border-gray-500/30 ${task.bottom} ${getBackgroundClass(task.rank)}`}>
-                <div className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`rounded-[.3rem] p-2 border-foreground bg-white ${task.border}`}
-                    >
-                      <FaAward fill='black' />
-                    </div>
-                    <div>
-                      <h3 className="text-base font-semibold">{task.username}</h3>
-                      <p className="text-muted-foreground text-sm">{task.reward}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    {task.rank}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </ScrollArea>
-        </Card>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Leader
+export default Leaderboard;
