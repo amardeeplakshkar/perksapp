@@ -9,13 +9,30 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // Check if the user (referee) already exists in the database
     const existingUser = await prisma.user.findUnique({
       where: { telegramId: parseInt(userId) },
     });
 
-    // If the user already exists, return without giving points
     if (existingUser) {
+      if (!existingUser.referredByTelegramId && existingUser.isNewUser) {
+        // Update existing user and award points to the referrer
+        await prisma.$transaction([
+          prisma.user.update({
+            where: { telegramId: existingUser.telegramId },
+            data: {
+              referredByTelegramId: parseInt(referrerId),
+              isNewUser: false,
+            },
+          }),
+          prisma.user.update({
+            where: { telegramId: parseInt(referrerId) },
+            data: { points: { increment: 500 } },
+          }),
+        ]);
+
+        return NextResponse.json({ message: 'Referral recorded for existing user.' });
+      }
+
       return NextResponse.json({ message: 'User already exists. No points awarded.' });
     }
 
@@ -24,12 +41,11 @@ export async function POST(request: NextRequest) {
       where: { telegramId: parseInt(referrerId) },
     });
 
-    // If referrer does not exist, return an error
     if (!referrer) {
       return NextResponse.json({ error: 'Referrer not found' }, { status: 404 });
     }
 
-    // Create the new user and attach the referrer
+    // Create a new user and attach the referrer
     const newUser = await prisma.user.create({
       data: {
         telegramId: parseInt(userId),
@@ -41,19 +57,16 @@ export async function POST(request: NextRequest) {
     // Add points to the referrer
     await prisma.user.update({
       where: { telegramId: referrer.telegramId },
-      data: { points: { increment: 500 } }, // Award 500 points for successful referral
+      data: { points: { increment: 500 } },
     });
 
-    return NextResponse.json({
-      success: true,
-      newUser,
-      referrerPoints: 500
-    });
+    return NextResponse.json({ success: true, newUser, referrerPoints: 500 });
   } catch (error) {
     console.error('Error saving referral:', error);
     return NextResponse.json({ error: 'Failed to save referral' }, { status: 500 });
   }
 }
+
 
 export async function GET(request: NextRequest) {
   const userId = request.nextUrl.searchParams.get('userId');

@@ -27,7 +27,7 @@ model User {
 
   // Referrals
   referrals               User[]           @relation("UserReferrals")
-  referredBy              User?            @relation("UserReferrals", fields: [referredByTelegramId], references: [telegramId], onDelete: NoAction, onUpdate: NoAction)
+  referredBy User? @relation("UserReferrals", fields: [referredByTelegramId], references: [telegramId], onDelete: NoAction, onUpdate: NoAction)
   referredByTelegramId    Int?             // Store referrer’s telegramId
 }
 

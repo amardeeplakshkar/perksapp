@@ -16,6 +16,7 @@
     "@radix-ui/react-alert-dialog": "^1.1.2",
     "@radix-ui/react-aspect-ratio": "^1.1.0",
     "@radix-ui/react-avatar": "^1.1.1",
+    "@radix-ui/react-dialog": "^1.1.3",
     "@radix-ui/react-scroll-area": "^1.2.1",
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
@@ -58,7 +59,8 @@
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.171.0",
     "three-globe": "^2.35.6",
-    "tonweb": "^0.0.66"
+    "tonweb": "^0.0.66",
+    "vaul": "^1.1.2"
   },
   "devDependencies": {
     "@types/node": "^20",
