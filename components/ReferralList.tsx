@@ -18,7 +18,7 @@ const ReferralList: React.FC<ReferralListProps> = ({ referrals }) => {
   return (
     <Card className="p-4">
       <h3 className="text-lg font-semibold mb-4">Referred Users</h3>
-      <ScrollArea className="h-[300px]">
+      <ScrollArea className="h-[40dvh]">
         {referrals.length === 0 ? (
           <p className="text-center text-muted-foreground">No referrals yet</p>
         ) : (

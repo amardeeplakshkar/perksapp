@@ -7,6 +7,7 @@ import { FaAward, FaCrown } from 'react-icons/fa';
 import { Skeleton } from 'components/ui/skeleton';
 import { Separator } from 'components/ui/separator';
 import UserCard from 'components/userCard';
+import LogoHeader from 'components/LogoHeader';
 
 type LeaderboardData = {
   username: string;
@@ -46,13 +47,8 @@ const Leaderboard = async () => {
     <div>
       <div className='flex flex-col w-full'>
         <div className='flex-1 flex flex-col items-center'>
-          <LiveEmoji icon="Trophy" size={"5rem"} className='no-interaction' />
-          <p className='p-2 font-bold text-2xl'>Leaderboard</p>
-          <main className='text-sm w-full flex justify-between items-center p-2 bg-muted-foreground/10 rounded-xl'>
-            <p>Total</p>
-            <p>35,518,571 users</p>
-          </main>
-          <div className='w-full shine-effect mt-2 bg-foreground/5 rounded-xl'>
+         <LogoHeader header='leaderboard' icon='Trophy' about=' boost Perks to top leaderboards'/>
+          <div className='w-[90%] shine-effect mt-2 bg-foreground/5 rounded-xl'>
             <div className={`pr-2`}>
               <div className="p-4 py-2  flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -67,7 +63,7 @@ const Leaderboard = async () => {
               </div>
             </div>
           </div>
-          <Card className="w-full mt-2">
+          <Card className="w-dvw mt-2">
             <ScrollArea className="rounded-xl w-full bg-muted-foreground/10 overflow-x-hidden h-[50dvh]">
               {leaderboardData.map((user, index) => {
                 const position = leaderboardData.length + index - 99; 
@@ -92,7 +88,7 @@ const Leaderboard = async () => {
                         </div>
                         <div>
                           <h3 className="text-base font-semibold">{user.username}</h3>
-                          <p className="text-muted-foreground text-sm">
+                          <p className="text-muted-foreground text-xs">
                             {user.balance.toLocaleString()} PERKS
                           </p>
                         </div>

@@ -12,7 +12,7 @@ export default function RootLayout({
     <div
       className={`bg-black flex w-full flex-col h-dvh`}
     >
-      <ScrollArea className="flex-1 p-2">
+      <ScrollArea className="flex-1">
         <Toaster
           position="top-center"
           reverseOrder={false}

@@ -1,14 +1,9 @@
 import {  BiHome } from "react-icons/bi";
 import { BsPeopleFill } from "react-icons/bs";
-import { FaClipboardList, FaGreaterThan, FaVoteYea } from "react-icons/fa";
+import { FaAward, FaClipboardList, FaGreaterThan, FaVoteYea } from "react-icons/fa";
 import { IoStatsChart } from "react-icons/io5";
 
 export const FOOTER = [
-    {
-        icon: BiHome,
-        label: "Home",
-        route: "/dashboard"
-    },
     {
         icon: IoStatsChart,
         label: "Leaderboard",
@@ -20,6 +15,11 @@ export const FOOTER = [
         route: "/vote"
     },
     {
+        icon: FaAward,
+        label: "PERKS",
+        route: "/dashboard"
+    },
+    {
         icon: FaClipboardList,
         label: "Tasks",
         route: "/tasks"
@@ -28,10 +28,5 @@ export const FOOTER = [
         icon: BsPeopleFill,
         label: "Friends",
         route: "/friends"
-    },
-    {
-        icon: FaGreaterThan,
-        label: "Welcome",
-        route: "/test"
     },
 ]

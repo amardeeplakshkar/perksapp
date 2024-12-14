@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { TASKS } from '../../../utils/tasks';
 import { useTonConnectUI } from '@tonconnect/ui-react';
 import toast from 'react-hot-toast';
+import LogoHeader from 'components/LogoHeader';
 
 
 const recipient = process.env.NEXT_PUBLIC_TON_WALLET_ADDRESS;
@@ -197,7 +198,7 @@ export default function Tasks() {
 
     return (
         <>
-            <Heading title="tasks" desc={`for completing task`} />
+            <LogoHeader header="tasks" about={`earn perks for completing task`} icon='MoneyBag'/>
             <Tabs defaultValue="limited" className="w-full">
                 <TabsList className="grid w-full grid-cols-3 bg-foreground/10">
                     <TabsTrigger className="capitalize" value="limited">limited</TabsTrigger>

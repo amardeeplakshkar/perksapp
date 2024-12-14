@@ -146,8 +146,8 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
          <div className='group bg-white/5 cursor-pointer p-2 px-4 rounded-full '>
-         <p onClick={() => router.push("/welcome")} className='flex justify-center items-center text-sm group-hover:shine-effect font-semibold'>
-            Legend Perk Level <ChevronRight size={"1rem"}/>
+         <p className='flex justify-center items-center text-sm group-hover:shine-effect font-semibold'>
+            Perks Level <ChevronRight size={"1rem"}/>
           </p>
          </div>
         </div>

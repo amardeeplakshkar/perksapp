@@ -1,3 +1,4 @@
+import LogoHeader from 'components/LogoHeader'
 import Heading from '../../../components/Heading'
 import TaskCard from '../../../components/TaskCard'
 import { Avatar, AvatarImage } from '../../../components/ui/avatar'
@@ -13,7 +14,7 @@ const page = () => {
 
     return (
         <>
-            <Heading title='vote' desc="for" desc2='voting projects' />
+           <LogoHeader header='Voting' icon='PalmUpHand' about='Get Perks For Voting Projects'/>
             <Tabs defaultValue='ongoing' className='w-full'>
                 <TabsList className="grid w-full grid-cols-2 bg-foreground/10">
                     <TabsTrigger value='ongoing'>On Going</TabsTrigger>
@@ -33,7 +34,7 @@ const page = () => {
                     <Card>
                         <ScrollArea className=''>
                             <div className='bg-foreground/5 rounded-lg'>
-                                <TaskCard
+                                {/* <TaskCard
                                     completedTasks={completedTasks}
                                     task={{
                                         id: "1",
@@ -41,7 +42,8 @@ const page = () => {
                                         title: "Tomarket",
                                         reward: "Season 1 Winner",
                                         img: true,
-                                    }} />
+                                    }} /> */}
+                                    
                             </div>
                         </ScrollArea>
                     </Card>

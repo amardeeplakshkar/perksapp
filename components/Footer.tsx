@@ -9,13 +9,13 @@ const Footer = () => {
     const pathname = usePathname()
     return (
         <>
-            <div className='flex justify-between px-6 p-2 w-full bg-gray-50/5 rounded-t-lg items-center gap-2'>
+            <div className='flex justify-evenly px-4 p-2 w-full bg-gray-50/5 rounded-t-lg items-center gap-2'>
                 {FOOTER.map((item) =>
                     <div key={item.label} onClick={() => router.push(item.route)} className={`cursor-pointer flex justify-center items-center flex-col gap-1
                     ${(pathname === item.route ? "" : "opacity-35 scale-75")}
                     `}>
-                        <item.icon size={"1.5rem"} />
-                        <p className='text-xs'>{item.label}</p>
+                        <item.icon size={"1.5rem"} className='scale-105' />
+                       <p className='text-xs'>{item.label}</p>
                     </div>
                 )}
             </div>
