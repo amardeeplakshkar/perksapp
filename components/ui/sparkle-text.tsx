@@ -96,14 +96,14 @@ const SparklesText: React.FC<SparklesTextProps> = ({
     };
 
     initializeStars();
-    const interval = setInterval(updateStars, 100);
+    const interval = setInterval(updateStars, 150)
 
     return () => clearInterval(interval);
   }, [colors.first, colors.second]);
 
   return (
     <div
-      className={cn("text-6xl font-bold", className)}
+      className={cn("font-bold", className)}
       {...props}
       style={
         {
@@ -116,8 +116,9 @@ const SparklesText: React.FC<SparklesTextProps> = ({
         {sparkles.map((sparkle) => (
           <Sparkle key={sparkle.id} {...sparkle} />
         ))}
-        {/* Render the children content */}
-        <span>{children}</span>
+        <div className="block h-[20dvh] w-[30dvw]">
+        {children}
+        </div>
       </span>
     </div>
   );

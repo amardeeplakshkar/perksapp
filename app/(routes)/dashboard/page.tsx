@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { FaAward } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
-import PerksIcon from 'components/PerksIcon';
+import Perks from 'components/Perks';
 
 const Dashboard: React.FC = () => {
   const [user, setUser] = useState(null);
@@ -136,7 +136,10 @@ const Dashboard: React.FC = () => {
         <div className="flex flex-1 flex-col justify-center gap-2 items-center">
           <TonConnectButton />
           <div className='flex flex-col items-center mt-8'>
-            <PerksIcon medal={"silver"} size={"8rem"}/>
+            <Perks medal={"bronze"} size={"8rem"}/>
+            <Perks medal={"sliver"} size={"8rem"}/>
+            <Perks medal={"gold"} size={"8rem"}/>
+            <Perks medal={"diamond"} size={"8rem"}/>
             <div className="text-center flex items-center gap-2 pt-2">
               <div className="text-4xl font-semibold">
                 {user?.points !== undefined && user?.points !== null

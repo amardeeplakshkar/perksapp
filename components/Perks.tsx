@@ -1,5 +1,7 @@
 import React from 'react';
 import SparklesText from './ui/sparkle-text';
+import { FaAward } from 'react-icons/fa6';
+import DynamicSVGIcon from './icon';
 
 interface PerksProps {
     medal?: string;
@@ -8,21 +10,17 @@ interface PerksProps {
 
 const Perks: React.FC<PerksProps> = ({ medal, size }) => {
     const medalColors: Record<string, string> = {
-        gold: '#FFD700',
-        silver: '#C0C0C0',
-        bronze: '#CD7F32',
-        diamond: 'goldenrod',
+        gold: 'goldenrod',  
+        silver: 'silver', 
+        bronze: '#b56a2c',
+        diamond: 'skyblue'
     };
 
-    // Default color is grey if no medal is provided
     const color = medalColors[medal || ''] || '#808080';
 
     return (
-        <SparklesText sparklesCount={5} colors={{ first: color, second: color }}>
-            <i
-                className={`fad fa-award fa-fw text-transparent`}
-                style={{ color, fontSize: size }}
-            ></i>
+        <SparklesText sparklesCount={5} className='' colors={{ first: color, second: color }}>
+            <DynamicSVGIcon color={color} size={size}/>
         </SparklesText>
     );
 };

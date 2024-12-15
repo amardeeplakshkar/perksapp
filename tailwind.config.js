@@ -9,6 +9,54 @@ module.exports = {
 	theme: {
     	extend: {
     		colors: {
+				gold: {
+					50: '#fffaf0',
+					100: '#fef3c7',
+					200: '#fde68a',
+					300: '#fcd34d',
+					400: '#fbbf24',
+					500: '#f59e0b', // Base gold color
+					600: '#d97706',
+					700: '#b45309',
+					800: '#92400e',
+					900: '#78350f',
+				  },
+				  silver: {
+					50: '#fafafa',
+					100: '#f4f4f5',
+					200: '#e4e4e7',
+					300: '#d4d4d8',
+					400: '#a1a1aa',
+					500: '#71717a', // Base silver color
+					600: '#52525b',
+					700: '#3f3f46',
+					800: '#27272a',
+					900: '#18181b',
+				  },
+				  diamond: {
+					50: '#f0faff',
+					100: '#e0f7ff',
+					200: '#b3ecff',
+					300: '#80e1ff',
+					400: '#33c7ff',
+					500: '#00a3ff', // Base diamond color
+					600: '#0085d4',
+					700: '#0065a5',
+					800: '#004876',
+					900: '#002a48',
+				  },
+				  bronze: {
+					50: '#fdf8f3',
+					100: '#f9ede0',
+					200: '#f2d6b8',
+					300: '#eab68a',
+					400: '#d58b4a',
+					500: '#b56a2c', // Base bronze color
+					600: '#934f22',
+					700: '#713c1b',
+					800: '#522c14',
+					900: '#3a1f0e',
+				  },
     			background: 'hsl(var(--background))',
     			foreground: 'hsl(var(--foreground))',
     			card: {
