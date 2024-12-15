@@ -8,7 +8,7 @@ export async function GET(req) {
       orderBy: {
         points: 'desc',
       },
-      take: 50,
+      take: 10,
     });
 
     return NextResponse.json(topUsers);

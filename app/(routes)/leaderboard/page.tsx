@@ -1,35 +1,68 @@
+"use client"
 
 import { Card } from '../../../components/ui/card';
 import { ScrollArea } from '../../../components/ui/scroll-area';
-import { LiveEmoji } from 'liveemoji'
 import React, { useEffect, useState } from 'react'
 import { FaAward, FaCrown } from 'react-icons/fa';
-import { Skeleton } from 'components/ui/skeleton';
 import { Separator } from 'components/ui/separator';
 import UserCard from 'components/userCard';
 import LogoHeader from 'components/LogoHeader';
-
-type LeaderboardData = {
-  username: string;
-  balance: number;
-  chatId: number;
-};
+import Loader from 'components/Loader';
 
 const Leaderboard = async () => {
-  // const { userData, loading, error, userId } = useUserData();
-  const res = await fetch('https://api.paws.community/v1/user/leaderboard?page=0&limit=100', {
-    headers: {
-      Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjYxMDI2ODQxMTQsImlhdCI6MTczNDA5NDU2NywiZXhwIjoxNzM0MTgwOTY3fQ.UDqYfCrzdmXrVOYXjhWfhR5gQJa72df0y1mLz4y0K4o',
-    },
-  });
+  const [topUsers, setTopUsers] = useState([]);
+  const [loadingTopUsers, setLoadingTopUsers] = useState(true);
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState(null);
+  const [notification, setNotification] = useState("");
 
-  const data = await res.json();
+  useEffect(() => {
+    const fetchTopUsers = async () => {
+      try {
+        const response = await fetch("/api/leaderboard");
+        if (!response.ok) throw new Error("Failed to fetch top users");
 
-  if (!data.success) {
-    return <div>Failed to load leaderboard data</div>;
-  }
+        const data = await response.json();
+        setTopUsers(data);
+      } catch (err) {
+        console.error(err);
+        setError(err.message);
+      } finally {
+        setLoadingTopUsers(false);
+      }
+    };
 
-  const leaderboardData: LeaderboardData[] = data.data.list;
+    fetchTopUsers();
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+      tg.ready();
+
+      const initDataUnsafe = tg.initDataUnsafe || {user};
+      if (initDataUnsafe.user) {
+        fetch("/api/user", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(initDataUnsafe.user),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.error) {
+              setError(data.error);
+            } else {
+              setUser(data);
+            }
+          })
+          .catch((err) => setError("Failed to fetch user data: " + err.message));
+      } else {
+        setError("No user data available");
+      }
+    } else {
+      setError("This app should be opened in Telegram");
+    }
+  }, []);
 
   const getBackgroundClass = (rank: number) => {
     switch (rank) {
@@ -40,9 +73,13 @@ const Leaderboard = async () => {
       case 3:
         return "bg-[#ffa2451a]"; // Bronze
       default:
-        return ""; // Default
+        return "";
     }
   };
+
+  if (error) return <div className="mx-auto p-4 text-red-500">{error}</div>;
+
+  if (!user) return <Loader />;
   return (
     <div>
       <div className='flex flex-col w-full'>
@@ -65,8 +102,8 @@ const Leaderboard = async () => {
           </div>
           <Card className="w-dvw mt-2">
             <ScrollArea className="rounded-xl w-full bg-muted-foreground/10 overflow-x-hidden h-[50dvh]">
-              {leaderboardData.map((user, index) => {
-                const position = leaderboardData.length + index - 99; 
+              {topUsers.map((user, index) => {
+                const position = topUsers.length + index - 9; 
                 const isMedal = position <= 3;
 
                 const medalEmoji = isMedal
@@ -97,7 +134,7 @@ const Leaderboard = async () => {
                         {medalEmoji || position}
                       </div>
                     </div>
-                    {index !== leaderboardData.length - 1 && <Separator />}
+                    {index !== topUsers.length - 1 && <Separator />}
                   </div>
                 );
               })}

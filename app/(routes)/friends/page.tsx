@@ -11,18 +11,28 @@ const FriendsPage = () => {
   const [userId, setUserId] = useState<string>('');
   const [referrals, setReferrals] = useState([]);
   const [stats, setStats] = useState({ totalReferrals: 0, totalEarned: 0 });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const initWebApp = async () => {
-      if (typeof window !== 'undefined') {
-        const WebApp = (await import('@twa-dev/sdk')).default;
-        WebApp.ready();
-        const userId = WebApp.initDataUnsafe.user?.id.toString() || '';
-        setUserId(userId);
+      try {
+        if (typeof window !== 'undefined') {
+          const WebApp = (await import('@twa-dev/sdk')).default;
+          WebApp.ready();
+          const userId = WebApp.initDataUnsafe.user?.id.toString() || '';
+          setUserId(userId);
 
-        if (userId) {
-          fetchReferralData(userId);
+          if (userId) {
+            fetchReferralData(userId);
+          } else {
+            toast.error('User ID is not available.');
+          }
         }
+      } catch (error) {
+        console.error('Error initializing WebApp:', error);
+        toast.error('Failed to initialize WebApp.');
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -49,19 +59,28 @@ const FriendsPage = () => {
     }
   };
 
+  if (loading) {
+    return <div>Loading...</div>; // You can replace this with a spinner or any other loading state.
+  }
+
   return (
     <div className="flex flex-col h-[88dvh]">
       <div className="p-4 flex-1">
         <LogoHeader header='Friends' icon='DuckRefer' about='refer friends and earn more perks '/>
-        {userId && <ReferralLink telegramId={userId} />}
-        <ReferralStats
-          totalReferrals={stats.totalReferrals}
-          totalEarned={stats.totalEarned}
-        />
-        <ReferralList referrals={referrals} />
+        {userId ? (
+          <>
+            <ReferralLink telegramId={userId} />
+            <ReferralStats
+              totalReferrals={stats.totalReferrals}
+              totalEarned={stats.totalEarned}
+            />
+            <ReferralList referrals={referrals} />
+          </>
+        ) : (
+          <div>No user ID available</div>
+        )}
       </div>
     </div>
-
   );
 };
 

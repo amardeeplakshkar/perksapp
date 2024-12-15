@@ -1,15 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from './ui/button';
 import toast from 'react-hot-toast';
-import { initUtils } from '@telegram-apps/sdk';
 import { Drawer, DrawerContent, DrawerTrigger } from './ui/drawer';
 import { RainbowButton } from './ui/rainbow-button';
-
-let utils: ReturnType<typeof initUtils> | null = null;
-
-if (typeof window !== 'undefined') {
-  utils = initUtils();
-}
 
 interface ReferralLinkProps {
   telegramId: string;
@@ -17,9 +10,22 @@ interface ReferralLinkProps {
 
 const ReferralLink: React.FC<ReferralLinkProps> = ({ telegramId }) => {
   const [isClient, setIsClient] = useState(false);
+  const [utils, setUtils] = useState<ReturnType<typeof import('@telegram-apps/sdk').initUtils> | null>(null);
 
   useEffect(() => {
     setIsClient(true);
+    const loadUtils = async () => {
+      if (typeof window !== 'undefined') {
+        try {
+          const { initUtils } = await import('@telegram-apps/sdk');
+          setUtils(initUtils());
+        } catch (error) {
+          console.error('Error loading initUtils:', error);
+        }
+      }
+    };
+
+    loadUtils();
   }, []);
 
   const referralLink = `https://t.me/PerksCryptoBot/perks?startapp=${telegramId}`;
