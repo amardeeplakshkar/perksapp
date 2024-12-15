@@ -16,7 +16,7 @@ const Perks: React.FC<PerksProps> = ({ medal, size }) => {
         diamond: 'skyblue'
     };
 
-    const color = medalColors[medal || ''] || '#808080';
+    const color = medalColors[medal || ''] || 'white';
 
     return (
         <SparklesText sparklesCount={5} className='' colors={{ first: color, second: color }}>

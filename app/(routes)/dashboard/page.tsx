@@ -136,10 +136,9 @@ const Dashboard: React.FC = () => {
         <div className="flex flex-1 flex-col justify-center gap-2 items-center">
           <TonConnectButton />
           <div className='flex flex-col items-center mt-8'>
-            <Perks medal={"bronze"} size={"8rem"}/>
-            <Perks medal={"sliver"} size={"8rem"}/>
-            <Perks medal={"gold"} size={"8rem"}/>
-            <Perks medal={"diamond"} size={"8rem"}/>
+            {/* Is Medal */}
+            {/* <Perks medal={"bronze"} size={"8rem"}/> */}
+            <FaAward size={"8rem"}/>
             <div className="text-center flex items-center gap-2 pt-2">
               <div className="text-4xl font-semibold">
                 {user?.points !== undefined && user?.points !== null
@@ -150,7 +149,7 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
          <div className='group bg-white/5 cursor-pointer p-2 px-4 rounded-full '>
-         <p className='flex justify-center items-center text-sm group-hover:shine-effect font-semibold'>
+         <p onClick={() => router.push("/shop")} className='flex justify-center items-center text-sm group-hover:shine-effect font-semibold'>
             Perks Level <ChevronRight size={"1rem"}/>
           </p>
          </div>
