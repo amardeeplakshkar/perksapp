@@ -159,3 +159,45 @@ html {
       transparent 100%);
   animation: shine 4s infinite;
 }
+
+.medal-container {
+  position: relative;
+  display: inline-block;
+  overflow: hidden; /* Ensure shine stays within the bounds */
+}
+
+.fad {
+  position: relative;
+  z-index: 1; /* Keeps the icon above the shine overlay */
+}
+
+.shine-overlay {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%; /* Start the shine outside the container */
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+      120deg,
+      rgba(255, 255, 255, 0.2) 0%,
+      rgba(255, 255, 255, 0.7) 50%,
+      rgba(255, 255, 255, 0.2) 100%
+  );
+  z-index: 2;
+  transform: skewX(-20deg); /* Angles the shine for a diagonal effect */
+  animation: shine 2s infinite; /* Infinite animation */
+}
+
+/* Keyframes for the shine animation */
+@keyframes shine {
+  0% {
+      left: -150%; /* Start far left */
+  }
+  50% {
+      left: 50%; /* Shine moves across the center */
+  }
+  100% {
+      left: 150%; /* Shine exits to the right */
+  }
+}

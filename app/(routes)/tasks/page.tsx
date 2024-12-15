@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
-import Heading from "../../../components/Heading";
 import TaskCard from "../../../components/TaskCard";
 import { Card } from "../../../components/ui/card";
 import { ScrollArea } from "../../../components/ui/scroll-area";
@@ -12,20 +11,22 @@ import { TASKS } from '../../../utils/tasks';
 import { useTonConnectUI } from '@tonconnect/ui-react';
 import toast from 'react-hot-toast';
 import LogoHeader from 'components/LogoHeader';
+import { FaAward, FaLink, FaTelegramPlane, FaTwitter, FaWallet } from 'react-icons/fa';
+import { BsPeopleFill, BsTwitterX } from 'react-icons/bs';
 
 
 const recipient = process.env.NEXT_PUBLIC_TON_WALLET_ADDRESS;
 
 interface User {
-  telegramId: string;
-  username: string;
-  firstName: string;
-  completedTaskIds: string[];
-  points?: number;
+    telegramId: string;
+    username: string;
+    firstName: string;
+    completedTaskIds: string[];
+    points?: number;
 }
 
 interface InitDataUnsafe {
-  user?: User;
+    user?: User;
 }
 
 export default function Tasks() {
@@ -39,7 +40,7 @@ export default function Tasks() {
     const [tonConnectUI] = useTonConnectUI();
     const [loadingTasks, setLoadingTasks] = useState<Record<string, boolean>>({});
     const [anyLoading, setAnyLoading] = useState(false);
-    
+
 
     useEffect(() => {
         const initWebApp = async () => {
@@ -63,7 +64,7 @@ export default function Tasks() {
         try {
             const response = await fetch(`/api/user?telegramId=${userId}`);
             const data = await response.json();
-            
+
             if (response.ok) {
                 setCompletedTasks(data.completedTaskIds.reduce((acc, taskId) => ({
                     ...acc,
@@ -80,58 +81,156 @@ export default function Tasks() {
     };
 
 
-  const handleTonTransaction = useCallback(async () => {
-    if (!tonConnectUI.connected) {
-      router.push("/dashboard");
-      toast.error("Connect Wallet First");
-      return;
-    }
+    const handleReferTask = () => {
+        router.push("/friends")
+    };
+    const handleJoinPartnerTask = (taskId: string, taskReward: number, taskTitle: string, taskPath: string) => async () => {
+        // Open the relevant partner channel link in a new tab
+        window.open(taskPath, "_blank");
 
-    setIsLoading(true);
-    try {
-      await tonConnectUI.sendTransaction({
-        validUntil: Math.floor(Date.now() / 1000) + 60,
-        messages: [
-          {
-            address: recipient,
-            amount: (0.5 * 1e9).toString(),
-          },
-        ],
-      });
+        // Check if user is defined
+        if (!user) {
+            console.error("User is not defined");
+            return;
+        }
 
-      const response = await fetch("/api/complete-task", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: String(user.telegramId),
-          taskId: 'L07f1f77bcf86cd799439001',
-          points: 100000,
-        }),
-      });
+        // Start loading state for the task
+        setLoadingTasks((prev) => ({ ...prev, [taskId]: true }));
+        setAnyLoading(true);
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Failed to add points.");
+        try {
+            // Call the API to complete the task and award points
+            const response = await fetch("/api/complete-task", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: String(user.telegramId),
+                    taskId: taskId, // Task ID for the partner task
+                    points: taskReward, // Points to be awarded for this task
+                }),
+            });
 
-      setUser((prevUser) => ({
-        ...prevUser!,
-        points: (prevUser?.points || 0) + 100000,
-      }));
-      toast.success("Transaction successful! 100,000 Peaks added 🎉");
-    } catch (error: any) {
-      console.error("Transaction failed:", error);
-      toast.error(error.message || "Transaction failed. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [tonConnectUI, router, user]);
+            const data = await response.json();
+
+            if (!response.ok) throw new Error(data.error || "Failed to complete partner task.");
+
+            // Update the user points
+            setUser((prevUser) => ({
+                ...prevUser!,
+                points: (prevUser?.points || 0) + taskReward,
+            }));
+
+            // Mark the task as completed
+            setCompletedTasks((prev) => ({
+                ...prev,
+                [taskId]: true,
+            }));
+
+            toast.success(`${taskTitle} task completed and points added successfully! 🎉`);
+        } catch (error: any) {
+            console.error(`Failed to complete ${taskTitle} task:`, error);
+            toast.error(error.message || `Failed to complete ${taskTitle} task. Please try again.`);
+        } finally {
+            setLoadingTasks((prev) => ({ ...prev, [taskId]: false }));
+            setAnyLoading(false);
+        }
+    };
+
+    const handleWalletConnectTask = useCallback(async () => {
+        if (!tonConnectUI.connected) {
+            router.push("/dashboard");
+            toast.error("Connect Wallet First");
+            return;
+        }
+        setIsLoading(true);
+        try {
+
+            const response = await fetch("/api/complete-task", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: String(user!.telegramId), // Assuming `user` is already defined
+                    taskId: "G07f1f77bcf86cd799439002", // Task ID for "Connect Wallet"
+                    points: 5000 // Points to be awarded for the task
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) throw new Error(data.error || "Failed to complete wallet connect task.");
+
+            setUser((prevUser) => ({
+                ...prevUser!,
+                points: (prevUser?.points || 0) + 5000
+            }));
+
+            setCompletedTasks((prev) => ({
+                ...prev,
+                "G07f1f77bcf86cd799439002": true,
+            }));
+
+            toast.success("Wallet connected and points added successfully! 🎉");
+
+        } catch (error: any) {
+            console.error("Failed to complete wallet connect task:", error);
+            toast.error(error.message || "Failed to complete wallet connect task. Please try again.");
+        } finally {
+            setIsLoading(false);
+        }
+    }, [tonConnectUI, router, user]);
+
+    const handleTonTransaction = useCallback(async () => {
+        if (!tonConnectUI.connected) {
+            router.push("/dashboard");
+            toast.error("Connect Wallet First");
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            await tonConnectUI.sendTransaction({
+                validUntil: Math.floor(Date.now() / 1000) + 60,
+                messages: [
+                    {
+                        address: recipient,
+                        amount: (0.5 * 1e9).toString(),
+                    },
+                ],
+            });
+
+            const response = await fetch("/api/complete-task", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: String(user.telegramId),
+                    taskId: 'L07f1f77bcf86cd799439001',
+                    points: 20000,
+                }),
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || "Failed to add points.");
+
+            setUser((prevUser) => ({
+                ...prevUser!,
+                points: (prevUser?.points || 0) + 100000,
+            }));
+            toast.success("Transaction successful! 100,000 Peaks added 🎉");
+        } catch (error: any) {
+            console.error("Transaction failed:", error);
+            toast.error(error.message || "Transaction failed. Please try again.");
+        } finally {
+            setIsLoading(false);
+        }
+    }, [tonConnectUI, router, user]);
 
     const taskData = {
         limited: [
             {
                 id: "L07f1f77bcf86cd799439001",
                 icon: "ton",
-                title: "TON Promote",
-                reward: TASKS.TON_PROMOTE.points,
+                title: "Daily Check-In",
+                reward: 20000,
                 bg: 'bg-blue-500',
                 bottom: 'border-b-2',
                 img: true,
@@ -141,64 +240,87 @@ export default function Tasks() {
                 id: "L07f1f77bcf86cd799439002",
                 icon: <span className="scale-125 h-[25px] w-[25px] flex justify-center items-center">😳</span>,
                 title: "Mystery Quest",
-                reward: 1000000,
+                reward: 10000,
                 status: "0/1",
                 bg: "bg-foreground/10",
             },
         ],
         InGame: [
-            { id: "G07f1f77bcf86cd799439001", icon: "dogs", title: "Complete Profile", reward: 5000, status: "0/1" },
-            { id: "G07f1f77bcf86cd799439002", icon: "github", title: "Verify Email", reward: 3000, status: "1/1", onClick: () => router.push('/') },
-            { id: "G07f1f77bcf86cd799439003", icon: "gitlab", title: "Join Telegram", reward: 2000, status: "calculating" },
-            { id: "G07f1f77bcf86cd799439004", icon: "bitbucket", title: "Follow on Twitter", reward: 4000, status: "0/1" },
+            {
+                id: "G07f1f77bcf86cd799439001",
+                icon: <FaTelegramPlane size={"1.5rem"} />,
+                title: "Join Telegram",
+                reward: 5000,
+                bg: "bg-blue-500",
+                onClick: handleJoinPartnerTask("G07f1f77bcf86cd799439001", 5000, "PERKS Community", "https://t.me/perkscommunity"),
+            },
+            {
+                id: "G07f1f77bcf86cd799439002",
+                icon: <FaWallet size={"1.5rem"} />,
+                title: "Join Telegram",
+                reward: 5000,
+                bg: "bg-sky-500",
+                onClick: handleWalletConnectTask
+            },
+            {
+                id: "G07f1f77bcf86cd799439003",
+                icon: <BsTwitterX size={"1.5rem"} />,
+                title: "Follow on Twitter", 
+                reward: 2000 , 
+                onClick: handleJoinPartnerTask("G07f1f77bcf86cd799439003", 2000, "PERKS Twitter", "https://x.com/perkscommunity")
+            },
+            {
+                id: "G07f1f77bcf86cd799439004",
+                icon: <BsPeopleFill size={"1.5rem"} />,
+                title: "Refer 10 Friends",
+                reward: 5000,
+                status: "1/1",
+                onClick: handleReferTask, 
+                bg: "bg-green-500"
+            },
         ],
         partner: [
             {
-                id: "P07f1f77bcf86cd799439214",
+                id: "P07f1f77bcf86cd799439201",
                 icon: "blum",
                 title: "Join Blum Channel",
-                reward: 1000,
+                reward: 500,
                 path: "https://t.me/blumcrypto",
+                onClick: handleJoinPartnerTask("P07f1f77bcf86cd799439201", 500, "Join Blum Channel", "https://t.me/blumcrypto"),
                 img: true,
             },
             {
-                id: "P07f1f77bcf86cd799439215",
+                id: "P07f1f77bcf86cd799439202",
                 icon: "cats",
                 title: "Join Cats Channel",
-                reward: 1000,
-                path: "https://t.me/blumcrypto",
+                reward: 500,
+                path: "https://t.me/cats_housewtf",
+                onClick: handleJoinPartnerTask("P07f1f77bcf86cd799439202", 500, "Join Cats Channel", "https://t.me/cats_housewtf"),
                 img: true,
             },
             {
-                id: "P07f1f77bcf86cd799439216",
+                id: "P07f1f77bcf86cd799439203",
                 icon: "xempire",
-                title: "Join XEmpire Channel",
-                reward: 1000,
-                path: "https://t.me/blumcrypto",
+                title: "Join X Empire Channel",
+                reward: 500,
+                path: "https://t.me/notempire",
+                onClick: handleJoinPartnerTask("P07f1f77bcf86cd799439203", 500, "Join X Empire Channel", "https://t.me/notempire"),
                 img: true,
             },
             {
-                id: "P07f1f77bcf86cd799439217",
-                icon: "Peaks",
-                title: "Join Peaks Channel",
+                id: "P07f1f77bcf86cd799439204",
+                icon: "pavel-durov",
+                title: "Join Du Rove's Channel",
                 reward: 1000,
-                path: "https://t.me/blumcrypto",
-                img: true,
-            },
-            {
-                id: "P07f1f77bcf86cd799439218",
-                icon: "tomarket",
-                title: "Join tomarket Channel",
-                reward: 1000,
-                path: "https://t.me/blumcrypto",
-                img: true,
+                path: "https://t.me/durov",
+                onClick: handleJoinPartnerTask("P07f1f77bcf86cd799439204", 1000, "Join Du Rove's Channel", "https://t.me/blumcrypto"),
             },
         ]
     };
 
     return (
         <>
-            <LogoHeader header="tasks" about={`earn perks for completing task`} icon='MoneyBag'/>
+            <LogoHeader header="tasks" about={`earn perks for completing task`} icon='DuckMoney' />
             <Tabs defaultValue="limited" className="w-full">
                 <TabsList className="grid w-full grid-cols-3 bg-foreground/10">
                     <TabsTrigger className="capitalize" value="limited">limited</TabsTrigger>

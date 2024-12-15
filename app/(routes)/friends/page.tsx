@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Heading from '../../../components/Heading';
 import ReferralLink from '../../../components/ReferralLink';
 import ReferralStats from '../../../components/ReferralStats';
 import ReferralList from '../../../components/ReferralList';
@@ -51,10 +50,9 @@ const FriendsPage = () => {
   };
 
   return (
-
     <div className="flex flex-col h-[88dvh]">
       <div className="p-4 flex-1">
-        <LogoHeader header='Friends' icon='Handshake' about='refer friends and earn more perks '/>
+        <LogoHeader header='Friends' icon='DuckRefer' about='refer friends and earn more perks '/>
         {userId && <ReferralLink telegramId={userId} />}
         <ReferralStats
           totalReferrals={stats.totalReferrals}

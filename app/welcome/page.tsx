@@ -28,16 +28,10 @@ function CustomPaging() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const storedValue = localStorage.getItem('randomValue');
-        if (storedValue) {
-            setRandomValue(parseInt(storedValue, 10));
-        } else {
             const value = Math.floor(Math.random() * (15000 - 5000 + 1)) + 5000;
             setRandomValue(value);
             localStorage.setItem('randomValue', value.toString());
-        }
-    }, []);
-
+        },[]);
 
     
     // Fetch user data

@@ -47,7 +47,7 @@ const Leaderboard = async () => {
     <div>
       <div className='flex flex-col w-full'>
         <div className='flex-1 flex flex-col items-center'>
-         <LogoHeader header='leaderboard' icon='Trophy' about=' boost Perks to top leaderboards'/>
+         <LogoHeader header='leaderboard' icon='DuckLeaderboard' about=' boost Perks to top leaderboards'/>
           <div className='w-[90%] shine-effect mt-2 bg-foreground/5 rounded-xl'>
             <div className={`pr-2`}>
               <div className="p-4 py-2  flex items-center justify-between">

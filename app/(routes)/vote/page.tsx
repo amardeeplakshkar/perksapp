@@ -14,7 +14,7 @@ const page = () => {
 
     return (
         <>
-           <LogoHeader header='Voting' icon='PalmUpHand' about='Get Perks For Voting Projects'/>
+           <LogoHeader header='Voting' icon='DuckVote' about='Get Perks For Voting Projects'/>
             <Tabs defaultValue='ongoing' className='w-full'>
                 <TabsList className="grid w-full grid-cols-2 bg-foreground/10">
                     <TabsTrigger value='ongoing'>On Going</TabsTrigger>

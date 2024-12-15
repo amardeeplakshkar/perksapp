@@ -1,6 +1,4 @@
-"use client";
-
-import React, { JSX, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card } from './ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
@@ -27,20 +25,13 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, completedTasks }) => {
   const [timeLeft, setTimeLeft] = useState<string>("");
 
   useEffect(() => {
-    const storageKey = `countdown_${task.id}`;
-    let targetTime = localStorage.getItem(storageKey);
-
-    if (!targetTime) {
-      // If no target time in storage, set a new one
-      const newTargetTime = new Date();
-      newTargetTime.setHours(24, 0, 0, 0);
-      targetTime = newTargetTime.getTime().toString();
-      localStorage.setItem(storageKey, targetTime);
-    }
+    // Set the target time to midnight of the next day
+    const targetTime = new Date();
+    targetTime.setHours(24, 0, 0, 0);  // Set to midnight of the next day
 
     const updateCountdown = () => {
       const now = new Date().getTime();
-      const difference = parseInt(targetTime!) - now;
+      const difference = targetTime.getTime() - now;
 
       if (difference <= 0) {
         setTimeLeft("00:00:00");
@@ -58,10 +49,10 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, completedTasks }) => {
     };
 
     const interval = setInterval(updateCountdown, 1000);
-    updateCountdown();
+    updateCountdown(); // Initialize countdown immediately
 
-    return () => clearInterval(interval);
-  }, [task.id]);
+    return () => clearInterval(interval); // Cleanup interval on unmount
+  }, [task.id]); // Make sure effect runs when task.id changes
 
   return (
     <Card className="flex justify-between items-center border-0">
