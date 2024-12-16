@@ -8,11 +8,14 @@ import { Separator } from 'components/ui/separator';
 import UserCard from 'components/userCard';
 import LogoHeader from 'components/LogoHeader';
 import Loader from 'components/Loader';
+import { Avatar, AvatarFallback, AvatarImage } from 'components/ui/avatar';
+import { useUserData } from 'components/hooks/useUserData';
 
 const Leaderboard = () => {
   const [topUsers, setTopUsers] = useState([]);
   const [loadingTopUsers, setLoadingTopUsers] = useState(true);
   const [error, setError] = useState(null);
+  const {photoUrl} = useUserData();
 
   useEffect(() => {
     const fetchTopUsers = async () => {
@@ -44,9 +47,12 @@ const Leaderboard = () => {
           <div className="w-[90%] shine-effect mt-2 bg-foreground/5 rounded-xl">
             <div className="p-4 py-2 flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="rounded-xl p-3 border-foreground bg-black">
-                  <FaAward />
-                </div>
+                <Avatar className='rounded-xl'>
+                  <AvatarImage src={photoUrl}/>
+                  <AvatarFallback className='rounded-xl p-3 border-foreground bg-black'>
+                    <FaAward/>
+                  </AvatarFallback>
+                </Avatar>
                 <UserCard />
               </div>
               <div className="text-right ">
@@ -64,8 +70,8 @@ const Leaderboard = () => {
                   ? position === 1
                     ? '🥇'
                     : position === 2
-                    ? '🥈'
-                    : '🥉'
+                      ? '🥈'
+                      : '🥉'
                   : null;
 
                 return (
@@ -76,7 +82,7 @@ const Leaderboard = () => {
                           <FaAward fill="black" />
                         </div>
                         <div>
-                          <h3 className="text-base font-semibold">{ user.firstName || user.username}</h3>
+                          <h3 className="text-base font-semibold">{user.firstName || user.username}</h3>
                           <p className="text-muted-foreground text-xs">
                             {user.points.toLocaleString()} PERKS
                           </p>

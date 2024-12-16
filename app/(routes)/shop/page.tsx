@@ -5,9 +5,8 @@ import LogoHeader from 'components/LogoHeader'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from 'components/ui/accordion'
 import { Card } from 'components/ui/card'
 import { RainbowButton } from 'components/ui/rainbow-button'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useUserData } from 'components/hooks/useUserData';
-import WebApp from '@twa-dev/sdk';
 import { Loader } from 'lucide-react';
 import TelegramStar from 'components/TelegramStar'
 
@@ -37,7 +36,8 @@ const page = () => {
             const data = await response.json();
 
             if (data.success) {
-                setInvoiceLink(data.link); 
+                setInvoiceLink(data.link);
+                window.open(invoiceLink);
             } else {
                 alert(`Failed to create invoice: ${data.error}`);
             }
@@ -48,19 +48,6 @@ const page = () => {
 
         setLoading(false);
     };
-
-    useEffect(() => {
-        // Ensure `WebApp` API runs only in the browser environment
-        if (invoiceLink && typeof window !== "undefined") {
-          import("@twa-dev/sdk").then((WebApp) => {
-            (WebApp as any ).openInvoice(invoiceLink, (status) => {
-              if (status === "paid") {
-                alert("Payment successful!");
-              }
-            });
-          });
-        }
-      }, [invoiceLink]);
 
     return (
         <>

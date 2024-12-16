@@ -11,9 +11,9 @@ export async function POST(request) {
 
   try {
     const invoiceLink = await bot.telegram.createInvoiceLink({
-      title: `${candidate} via ${telegramId}`,
-      description: `Vote for ${candidate} in exchange for 1 Star.`,
-      payload: `vote_${candidate}_payload`,
+      title: `${candidate}`,
+      description: `Buy ${candidate} for 1 Star.`,
+      payload: `buy_${candidate}_payload`,
       provider_token: PROVIDER_TOKEN,
       currency: 'XTR',
       prices,

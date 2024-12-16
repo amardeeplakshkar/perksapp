@@ -4,7 +4,7 @@ import { useUserData } from './hooks/useUserData';
 import { Skeleton } from './ui/skeleton';
 
 const UserCard = () => {
-    const { userData, loading, error, userId } = useUserData();
+    const { userData} = useUserData();
     return (
         <div>
             <h3 className=" text-base font-semibold">{userData?.firstName ? userData?.firstName : <Skeleton className='h-4 w-20 -ml-1' />}</h3>
