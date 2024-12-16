@@ -20,6 +20,7 @@ type UserData = {
   referredByTelegramId: number | null;
   referrals: Referral[];
   completedTaskIds: number[];
+  photo_url: string;
 };
 
 export const useUserData = () => {
@@ -27,6 +28,8 @@ export const useUserData = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string>('');
+  const [photoUrl, setphotoUrl] = useState<string>('');
+
 
   useEffect(() => {
     const initWebApp = async () => {
@@ -34,8 +37,9 @@ export const useUserData = () => {
         const WebApp = (await import('@twa-dev/sdk')).default;
         WebApp.ready();
         const id = WebApp.initDataUnsafe.user?.id.toString() || '';
+        const photo_url = WebApp.initDataUnsafe.user?.photo_url.toString() || '';
         setUserId(id);
-
+        setphotoUrl(photo_url)
         if (id) {
           fetchUserData(id);
         }
@@ -70,5 +74,5 @@ export const useUserData = () => {
     }
   };
 
-  return { userData, loading, error, userId };
+  return { userData, loading, error, userId, photoUrl };
 };

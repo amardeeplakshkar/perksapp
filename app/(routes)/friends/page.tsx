@@ -6,6 +6,7 @@ import ReferralStats from '../../../components/ReferralStats';
 import ReferralList from '../../../components/ReferralList';
 import { toast } from 'react-hot-toast';
 import LogoHeader from 'components/LogoHeader';
+import Loader from 'components/Loader';
 
 const FriendsPage = () => {
   const [userId, setUserId] = useState<string>('');
@@ -60,7 +61,7 @@ const FriendsPage = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>; // You can replace this with a spinner or any other loading state.
+    return <Loader/>
   }
 
   return (
@@ -77,7 +78,7 @@ const FriendsPage = () => {
             <ReferralList referrals={referrals} />
           </>
         ) : (
-          <div>No user ID available</div>
+          <div className='text-center text-red-500'>No user ID available</div>
         )}
       </div>
     </div>

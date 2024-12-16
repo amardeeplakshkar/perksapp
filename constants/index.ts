@@ -1,8 +1,7 @@
 import {  BiHome } from "react-icons/bi";
-import { BsPeopleFill } from "react-icons/bs";
+import { BsPeopleFill, BsTrophyFill } from "react-icons/bs";
 import { FaAward, FaClipboardList, FaGreaterThan, FaVoteYea } from "react-icons/fa";
-import { FaCartShopping } from "react-icons/fa6";
-import { IoStatsChart } from "react-icons/io5";
+import { FaCartShopping, FaTrophy } from "react-icons/fa6";
 
 export const FOOTER = [
     {
@@ -11,7 +10,7 @@ export const FOOTER = [
         route: "/shop"
     },
     {
-        icon: IoStatsChart,
+        icon: BsTrophyFill,
         label: "Leaderboard",
         route: "/leaderboard"
     },

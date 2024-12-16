@@ -66,7 +66,7 @@ const ReferralLink: React.FC<ReferralLinkProps> = ({ telegramId }) => {
           <DrawerTrigger>
             <RainbowButton className="text-white">Share</RainbowButton>
           </DrawerTrigger>
-          <DrawerContent className="w-[90vw] h-[20vh]">
+          <DrawerContent className="w-[100vw] h-[25dvh]">
             <div className="p-4 capitalize h-full gap-4 flex justify-center items-center flex-col w-full">
               <Button
                 className="w-full capitalize"
