@@ -104,7 +104,7 @@ export default function Tasks() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    userId: String(user.telegramId),
+                    userId: String(userId),
                     taskId: taskId, // Task ID for the partner task
                     points: taskReward, // Points to be awarded for this task
                 }),
@@ -202,7 +202,7 @@ export default function Tasks() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    userId: String(user.telegramId),
+                    userId: String(userId),
                     taskId: 'L07f1f77bcf86cd799439001',
                     points: 20000,
                 }),
