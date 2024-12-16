@@ -7,6 +7,13 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum PerkLevel {
+  gold
+  diamond
+  silver
+  bronze
+}
+
 model User {
   id                     String           @id @default(auto()) @map("_id") @db.ObjectId
   telegramId             Int              @unique
@@ -29,6 +36,8 @@ model User {
   referrals               User[]           @relation("UserReferrals")
   referredBy User? @relation("UserReferrals", fields: [referredByTelegramId], references: [telegramId], onDelete: NoAction, onUpdate: NoAction)
   referredByTelegramId    Int?             // Store referrer’s telegramId
+
+  perkLevel              PerkLevel
 }
 
 model Task {

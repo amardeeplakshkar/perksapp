@@ -1,85 +1,120 @@
-// 'use client';
-
-// import React, { useState } from 'react';
-// import { Button } from 'components/ui/button'; 
-// import { useUserData } from 'components/hooks/useUserData';
-// import  WebApp  from '@twa-dev/sdk';
-// import { Loader } from 'lucide-react';
-
-// const SendInvoicePage = () => {
-//   const [loading, setLoading] = useState(false);
-//   const [invoiceLink, setInvoiceLink] = useState(null); 
-//   const { userData, error, userId } = useUserData();
-
-//   const handleSendInvoice = async (candidate) => {
-//     setLoading(true);
-
-//     try {
-//       const telegramId = userId; 
-//       const response = await fetch('/api/send-invoice', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify({ telegramId, candidate }),
-//       });
-
-//       const data = await response.json();
-
-//       if (data.success) {
-//         setInvoiceLink(data.link); // Save the invoice link
-//         WebApp.openInvoice(invoiceLink, (status) => {
-//           if (status === "paid") {
-//             WebApp.showAlert("Payment Successful")
-//           }
-//         });
-//       } else {
-//         alert(`Failed to create invoice: ${data.error}`);
-//       }
-//     } catch (error) {
-//       console.error('Error:', error);
-//       alert('Something went wrong!');
-//     }
-
-//     setLoading(false);
-//   };
-
-//   return (
-//     <div className="p-4">
-//       <h1 className="text-xl mb-4">Vote for Your Favorite Candidate</h1>
-//       <div className="flex flex-col gap-2">
-//         <Button onClick={() => handleSendInvoice('Tomarket')} disabled={loading}>
-//           {loading ? 
-//           <>
-//           <Loader className='animate-spin'/>
-//           </> : 'Pay 1 XTR to Vote for Tomarket'}
-//         </Button>
-//         <Button onClick={() => handleSendInvoice('XEmpire')} disabled={loading}>
-//           {loading ? <>
-//           <Loader className='animate-spin'/>
-//           </> : 'Pay 1 XTR to Vote for X Empire'}
-//         </Button>
-//         <Button onClick={() => handleSendInvoice('DuckChain')} disabled={loading}>
-//           {loading ? <>
-//           <Loader className='animate-spin'/>
-//           </> : 'Pay 1 XTR to Vote for DuckChain'}
-//         </Button>
-//       </div>
-//       {invoiceLink && (
-//         <div className="mt-4">
-//           <p className="text-green-500">Invoice created! Open it using the link below:</p>
-//           <a href={invoiceLink} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
-//             {invoiceLink}
-//           </a>
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default SendInvoicePage;
 import React from 'react'
+import { Telegraf, Markup }  from 'telegraf'
+require('dotenv').config();
 
+const BOT_TOKEN = process.env.NEXT_PUBLIC_BOT_TOKEN;
+const PROVIDER_TOKEN = process.env.NEXT_PUBLIC_PROVIDER_TOKEN;
+
+// Initialize the bot
+const bot = new Telegraf(BOT_TOKEN);
+
+// Candidates for voting
+const candidates = ['Tomarket', 'Duckchain', 'Cats'];
+
+// Function to create the voting menu
+const votingKeyboard = () => {
+  return Markup.inlineKeyboard(
+    candidates.map((candidate) => [
+      Markup.button.callback(`Vote for ${candidate}`, `vote_${candidate}`)
+    ])
+  );
+};
+
+// Function to create the "Pay" button for inline payments
+const paymentKeyboard = () => {
+  return Markup.inlineKeyboard([
+    Markup.button.pay('Pay 1 XTR to Vote')
+  ]);
+};
+
+// Command: /start
+bot.start((ctx) => {
+  ctx.reply(
+    'Welcome! Vote for your favorite candidate by clicking the button below.',
+    votingKeyboard()
+  );
+});
+
+// Voting action
+candidates.forEach((candidate) => {
+  bot.action(`vote_${candidate}`, async (ctx) => {
+    try {
+      console.log(`${ctx.from.username} clicked to vote for ${candidate}`);
+      const prices = [{ label: 'XTR', amount: 1 }]; 
+
+      await ctx.replyWithInvoice({
+        title: 'Vote Payment',
+        description: `Vote for ${candidate} in exchange for 1 Star.`,
+        payload: `vote_${candidate}_payload`,
+        provider_token: PROVIDER_TOKEN,
+        currency: 'XTR',
+        prices,
+      });
+
+      // Temporarily log the user's intent to vote for this candidate
+      console.log(`User ${ctx.from.id} initiated payment for voting ${candidate}`);
+    } catch (error) {
+      console.error('Vote Payment Error:', error);
+      await ctx.reply('Failed to initiate voting payment. Please try again.');
+    }
+  });
+});
+
+// Pre-checkout query handling
+bot.on('pre_checkout_query', async (ctx) => {
+  try {
+    await ctx.answerPreCheckoutQuery(true); // Approve payment
+  } catch (error) {
+    console.error('Pre-checkout Error:', error);
+  }
+});
+
+// Handle successful payment
+bot.on('successful_payment', (ctx) => {
+  const { id: userId } = ctx.from;
+  const paymentId = ctx.message.successful_payment.provider_payment_charge_id;
+  const { total_amount: amount, currency } = ctx.message.successful_payment;
+  const payload = ctx.message.successful_payment.invoice_payload;
+
+  // Extract candidate from the payload
+  const candidate = payload.replace('buy_', '').replace('_payload', '');
+  ctx.reply(
+    `✅ Payment received! You Have Successfully Purchased ${candidate}.`
+  );
+
+  console.log(`Vote recorded: ${userId} -> ${candidate}`);
+});
+
+// Command: /results (Admin Only)
+bot.command('results', (ctx) => {
+  if (ctx.from.id !== 6102684114) {
+    return ctx.reply('You are not authorized to view results.');
+  }
+
+  // Tally the votes
+  const tally = candidates.reduce((acc, candidate) => {
+    acc[candidate] = 0; // Initialize vote count
+    return acc;
+  }, {});
+
+  // Retrieve all votes and count them
+ 
+
+    let resultsMessage = '📊 Voting Results:\n';
+    candidates.forEach((candidate) => {
+      resultsMessage += `${candidate}: ${tally[candidate] || 0} votes\n`;
+    });
+
+    ctx.reply(resultsMessage);
+  });
+
+
+// Start the bot
+bot.launch();
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
 const page = () => {
   return (
     <div>page</div>

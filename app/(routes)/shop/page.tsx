@@ -9,7 +9,7 @@ import React, { useEffect, useState } from 'react'
 import { useUserData } from 'components/hooks/useUserData';
 import { Loader } from 'lucide-react';
 import TelegramStar from 'components/TelegramStar'
-import toast from 'react-hot-toast'
+import toast from 'react-hot-toast'  
 
 const gold = 'goldenrod'
 const silver = 'silver'
