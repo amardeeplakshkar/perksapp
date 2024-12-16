@@ -18,7 +18,6 @@ const diamond = 'skyblue'
 
 const Page = () => {
     const [loading, setLoading] = useState(false);
-    const [invoiceLink, setInvoiceLink] = useState(null);
     const { userId } = useUserData();
     const [webApp, setWebApp] = useState<any>(null);
 
@@ -29,12 +28,6 @@ const Page = () => {
                     const { default: WebApp } = await import('@twa-dev/sdk');
                     setWebApp(WebApp); 
                     WebApp.ready();
-
-                    if (userId) {
-                        // fetchReferralData(userId); // You can uncomment this once implemented
-                    } else {
-                        toast.error('User ID is not available.');
-                    }
                 }
             } catch (error) {
                 console.error('Error initializing WebApp:', error);
@@ -49,13 +42,12 @@ const Page = () => {
 
     const handleSendInvoice = async (candidate: string) => {
         setLoading(true);
-
+    
         try {
             if (!webApp) {
-                toast.error('WebApp is not initialized');
-                return;
+                return <Loader/>;
             }
-
+    
             const telegramId = userId;
             const response = await fetch('/api/send-invoice', {
                 method: 'POST',
@@ -64,12 +56,12 @@ const Page = () => {
                 },
                 body: JSON.stringify({ telegramId, candidate }),
             });
-
+    
             const data = await response.json();
-
+    
             if (data.success) {
-                setInvoiceLink(data.link);
-                webApp.openInvoice(invoiceLink);
+                const link = data.link;
+                webApp.openInvoice(link); 
             } else {
                 toast.error(`Failed to create invoice: ${data.error}`);
             }
@@ -77,9 +69,10 @@ const Page = () => {
             console.error('Error:', error);
             toast.error('Something went wrong!');
         }
-
+    
         setLoading(false);
     };
+    
 
     return (
         <>
