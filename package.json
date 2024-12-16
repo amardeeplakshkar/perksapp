@@ -1,6 +1,6 @@
 {
-  "name": "cocks",
-  "version": "2.1.0",
+  "name": "perks",
+  "version": "*3.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
