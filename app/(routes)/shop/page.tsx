@@ -18,7 +18,7 @@ const diamond = 'skyblue'
 const page = () => {
     const [loading, setLoading] = useState(false);
     const [invoiceLink, setInvoiceLink] = useState(null);
-    const { userId, photoUrl } = useUserData();
+    const { userId } = useUserData();
 
     const handleSendInvoice = async (candidate) => {
         setLoading(true);
@@ -37,7 +37,7 @@ const page = () => {
 
             if (data.success) {
                 setInvoiceLink(data.link);
-                window.open(invoiceLink);
+                window.open(invoiceLink, '_blank').focus();
             } else {
                 alert(`Failed to create invoice: ${data.error}`);
             }
@@ -48,12 +48,11 @@ const page = () => {
 
         setLoading(false);
     };
-
     return (
         <>
             <section className="p-1">
                 <LogoHeader header='Shop' icon='DuckShop' about='Boost Perks Points & Enjoy 100% TGE unlock' />
-                <p>{photoUrl}</p>
+                {/* <p>{photoUrl}</p> */}
                 <main className="grid grid-cols-2 gap-1">
                     {/* Diamond Perk */}
                     <Card className="flex flex-col justify-center items-center gap-2 p-4">
