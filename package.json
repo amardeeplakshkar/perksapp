@@ -42,6 +42,7 @@
     "framer-motion": "^11.13.5",
     "fs": "0.0.1-security",
     "globe.json": "link:@shadcn/data/globe.json",
+    "grammy": "^1.33.0",
     "liveemoji": "^2.0.5",
     "lucide-react": "^0.468.0",
     "mongodb": "^6.9.0",
