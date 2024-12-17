@@ -196,7 +196,7 @@ const Page = () => {
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>
-                        <RainbowButton className="shine-effect w-full text-[.6rem] flex justify-center items-center text-white font-medium mt-2" onClick={() => handleSendInvoice('Diamond Perk', 199)} disabled={loading || disableButton('diamond')}>
+                        <RainbowButton className="shine-effect w-full text-[.6rem] flex justify-center items-center text-white font-medium mt-2" onClick={() => handleSendInvoice('Diamond Perk', 1)} disabled={loading || disableButton('diamond')}>
                             {loading ? <Loader className='animate-spin' /> : <>
                                 <TelegramStar />
                                 199
