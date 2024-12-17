@@ -10,6 +10,8 @@ import { useUserData } from 'components/hooks/useUserData';
 import { Loader } from 'lucide-react';
 import TelegramStar from 'components/TelegramStar'
 import toast from 'react-hot-toast'
+import confetti from 'canvas-confetti';
+
 
 const gold = 'goldenrod'
 const silver = 'silver'
@@ -20,7 +22,7 @@ const Page = () => {
     const [loading, setLoading] = useState(false);
     const { userId } = useUserData();
     const [webApp, setWebApp] = useState<any>(null);
-    const [user, setUser] = useState<any>(null);  // Change user to any for ease of type handling
+    const [user, setUser] = useState<any>(null);
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -134,7 +136,37 @@ const Page = () => {
                     if (status === "paid") {
                         webApp.showAlert("Paid successfully");
 
-                        // Update the user's perk level
+                        const triggerConfetti = () => {
+                            const defaults = {
+                                spread: 360,
+                                ticks: 50,
+                                gravity: 0,
+                                decay: 0.94,
+                                startVelocity: 30,
+                                colors: ["#FFE400", "#FFBD00", "#E89400", "#FFCA6C", "#FDFFB8"],
+                            };
+                        
+                            for (let i = 0; i < 3; i++) {
+                                setTimeout(() => {
+                                    confetti({
+                                        ...defaults,
+                                        particleCount: 40,
+                                        scalar: 1.2,
+                                        shapes: ["star"],
+                                    });
+                        
+                                    confetti({
+                                        ...defaults,
+                                        particleCount: 10,
+                                        scalar: 0.75,
+                                        shapes: ["circle"],
+                                    });
+                                }, i * 100); 
+                            }
+                        };
+                        
+                        triggerConfetti();
+
                         const perkLevelResponse = await fetch('/api/update-perk-level', {
                             method: 'POST',
                             headers: {
@@ -277,7 +309,7 @@ const Page = () => {
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>
-                        <RainbowButton className="shine-effect w-full text-[.6rem] flex justify-center items-center text-white font-medium mt-2" onClick={() => handleSendInvoice('Bronze Perk', 69)} disabled={loading || disableButton('bronze')}>
+                        <RainbowButton className="shine-effect w-full text-[.6rem] flex justify-center items-center text-white font-medium mt-2" onClick={() => handleSendInvoice('Bronze Perk', 1)} disabled={loading || disableButton('bronze')}>
                             {loading ? <Loader className='animate-spin' /> : <>
                                 <TelegramStar />
                                 69

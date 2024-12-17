@@ -92,28 +92,36 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, completedTasks, taskLoading }
           </p>
         </div>
       </div>
-      {completedTasks[task.id] ? 
-          typeof task.reward === "string" ? <FaCrown size={18} className="mr-4" /> :
-        <FaCheck size={18} className="mr-4" />
-       : task.status === "0/1" ? (
-        <div className="flex items-end flex-col gap-1">
-          <div className="text-sm bg-foreground/10 p-1 px-2 rounded-full font-bold">0/1</div>
-          <div className="text-xs">{timeLeft}</div>
-        </div>
-      ) : task.status === "calculating" ? (
-        <div className="flex  items-end flex-col gap-1">
-          <div className="text-sm font-semibold">Calculating</div>
-          <div className="text-xs">{timeLeft}</div>
-        </div>
-      ) : (
-        <Button
-          onClick={task.onClick}
-          className="rounded-full text-[.65rem] h-7 font-semibold"
-          disabled={taskLoading}
-        >
-          {taskLoading ? <FaSpinner className="animate-spin" size={16} /> : "Start"}
-        </Button>
-      )}
+      {completedTasks[task.id] ?
+        typeof task.reward === "string" ? <FaCrown size={18} className="mr-4" /> :
+          <FaCheck size={18} className="mr-4" />
+        : task.status === "0/1" ? (
+          <div className="flex items-end flex-col gap-1">
+            <div className="text-sm bg-foreground/10 p-1 px-2 rounded-full font-bold">0/1</div>
+            <div className="text-xs">{timeLeft}</div>
+          </div>
+        ) : task.status === "calculating" ? (
+          <div className="flex  items-end flex-col gap-1">
+            <div className="text-sm font-semibold">Calculating</div>
+            <div className="text-xs">{timeLeft}</div>
+          </div>
+        ) : task.status === "vote" ? (
+          <Button
+            onClick={task.onClick}
+            className="rounded-full text-[.65rem] h-7 font-semibold"
+            disabled={taskLoading}
+          >
+            {taskLoading ? <FaSpinner className="animate-spin" size={16} /> : "VOTE"}
+          </Button>
+        ) : (
+          <Button
+            onClick={task.onClick}
+            className="rounded-full text-[.65rem] h-7 font-semibold"
+            disabled={taskLoading}
+          >
+            {taskLoading ? <FaSpinner className="animate-spin" size={16} /> : "Start"}
+          </Button>
+        )}
     </Card>
   );
 };
