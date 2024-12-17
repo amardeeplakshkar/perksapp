@@ -23,85 +23,66 @@ interface User {
     firstName: string;
     completedTaskIds: string[];
     points?: number;
-}
-
-interface InitDataUnsafe {
+  }
+  
+  interface InitDataUnsafe {
     user?: User;
-}
+  }
 
 export default function Tasks() {
-    const router = useRouter();
-    const [userId, setUserId] = useState('');
     const [activeTab, setActiveTab] = useState("limited");
     const [completedTasks, setCompletedTasks] = useState<Record<string, boolean>>({});
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [tonConnectUI] = useTonConnectUI();
+    const router = useRouter();
     const [loadingTasks, setLoadingTasks] = useState<Record<string, boolean>>({});
     const [anyLoading, setAnyLoading] = useState(false);
-
-
+    
     const fetchUserData = async () => {
-        if (window.Telegram?.WebApp) {
-          const tg = window.Telegram.WebApp;
-          tg.ready();
-    
-          const initDataUnsafe: InitDataUnsafe = tg.initDataUnsafe || {};
-          if (initDataUnsafe.user) {
-            try {
-              const response = await fetch("/api/user", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(initDataUnsafe.user),
-              });
-    
-              if (!response.ok) {
-                throw new Error("Failed to fetch user data.");
-              }
-    
-              const data = await response.json();
-              setUser(data);
-              setUserId(user.telegramId)
-              setCompletedTasks(
-                data.completedTaskIds.reduce((acc, taskId) => {
-                  acc[taskId] = true;
-                  return acc;
-                }, {})
-              );
-            } catch (err: any) {
-              console.error("Failed to fetch user data:", err.message);
-              toast.error(err.message || "Failed to fetch user data.");
+      if (window.Telegram?.WebApp) {
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+  
+        const initDataUnsafe: InitDataUnsafe = tg.initDataUnsafe || {};
+        if (initDataUnsafe.user) {
+          try {
+            const response = await fetch("/api/user", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(initDataUnsafe.user),
+            });
+  
+            if (!response.ok) {
+              throw new Error("Failed to fetch user data.");
             }
+  
+            const data = await response.json();
+            setUser(data);
+            setCompletedTasks(
+              data.completedTaskIds.reduce((acc, taskId) => {
+                acc[taskId] = true;
+                return acc;
+              }, {})
+            );
+          } catch (err: any) {
+            console.error("Failed to fetch user data:", err.message);
+            toast.error(err.message || "Failed to fetch user data.");
           }
         }
-        setLoading(false);
-      };
-    
-      useEffect(() => {
-        fetchUserData();
-      }, []);
-
-    const fetchCompletedTasks = async (userId: string) => {
-        try {
-            const response = await fetch(`/api/user?telegramId=${userId}`);
-            const data = await response.json();
-
-            if (response.ok) {
-                setCompletedTasks(data.completedTaskIds.reduce((acc, taskId) => ({
-                    ...acc,
-                    [taskId]: true
-                }), {}));
-            }
-        } catch (error) {
-            console.error('Error fetching completed tasks:', error);
-        }
+      }
+      setLoading(false);
     };
+  
+    useEffect(() => {
+      fetchUserData();
+    }, []);
 
     const handleReferTask = () => {
         router.push("/friends")
     };
-    
+
     const handleJoinPartnerTask = (taskId: string, taskReward: number, taskTitle: string, taskPath: string) => async () => {
         // Open the relevant partner channel link in a new tab
         window.open(taskPath, "_blank");
@@ -122,7 +103,7 @@ export default function Tasks() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    userId: String(userId),
+                    userId: String(user?.telegramId),
                     taskId: taskId, // Task ID for the partner task
                     points: taskReward, // Points to be awarded for this task
                 }),
@@ -167,9 +148,9 @@ export default function Tasks() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    userId: String(user!.telegramId), // Assuming `user` is already defined
-                    taskId: "G07f1f77bcf86cd799439002", // Task ID for "Connect Wallet"
-                    points: 5000 // Points to be awarded for the task
+                    userId: String(user?.telegramId), 
+                    taskId: "G07f1f77bcf86cd799439002", 
+                    points: 5000 
                 }),
             });
 
@@ -220,7 +201,7 @@ export default function Tasks() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    userId: String(userId),
+                    userId: String(user?.telegramId),
                     taskId: 'L07f1f77bcf86cd799439001',
                     points: 20000,
                 }),
