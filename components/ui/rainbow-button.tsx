@@ -1,16 +1,31 @@
 import React from "react";
-
+import toast from "react-hot-toast";
 import { cn } from "../../lib/utils";
-interface RainbowButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+
+interface RainbowButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
 
 export function RainbowButton({
   children,
   className,
+  disabled,
+  onClick, // Ensure `onClick` is destructured and used
   ...props
 }: RainbowButtonProps) {
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (disabled) {
+      // If the button is disabled, show a toast
+      toast.error("You already got this level!");
+    } else {
+      // If the button is not disabled, call the onClick handler
+      onClick?.(e);
+    }
+  };
+
   return (
     <button
+      onClick={handleClick} // Use the handleClick for the button's onClick
+      disabled={disabled}
       className={cn(
         "group relative inline-flex h-[2rem] animate-rainbow cursor-pointer items-center justify-center rounded-xl border-0 bg-[length:200%] px-8 py-2 font-medium text-primary-foreground transition-colors [background-clip:padding-box,border-box,border-box] [background-origin:border-box] [border:calc(0.08*1rem)_solid_transparent] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
 
