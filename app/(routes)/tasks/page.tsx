@@ -296,15 +296,7 @@ export default function Tasks() {
                 onClick: handleJoinPartnerTask("P07f1f77bcf86cd799439205", 1500, "Bums", "https://t.me/bums?start=_tgr_fpR3jAUxZGRl"),
                 img: true,
             },
-            {
-                id: "P07f1f77bcf86cd799439206",
-                icon: "cats",
-                title: "Cats",
-                reward: 500,
-                path: "https://t.me/cats_housewtf",
-                onClick: handleJoinPartnerTask("P07f1f77bcf86cd799439206", 500, " Cats", "https://t.me/catsgongbot?start=_tgr_NQMGGW4zYzY1"),
-                img: true,
-            },
+    
             {
                 id: "P07f1f77bcf86cd799439207",
                 icon: "duckchain",
@@ -332,15 +324,7 @@ export default function Tasks() {
                 onClick: handleJoinPartnerTask("P07f1f77bcf86cd799439209", 1000, "Trump Empire", "https://t.me/TrumpsEmpireBot?start=_tgr_h9FpSN5hNWVl"),
                 img: true,
             },
-            {
-                id: "P07f1f77bcf86cd799439210",
-                icon: "xempire",
-                title: "X Empire",
-                reward: 2500,
-                path: "https://t.me/notempire",
-                onClick: handleJoinPartnerTask("P07f1f77bcf86cd799439210", 2500, "X Empire", "https://t.me/XEmplrebot?start=_tgr_-bdLhQ5iMmJl"),
-                img: true,
-            },
+            
             {
                 id: "P07f1f77bcf86cd799439211",
                 icon: "starhash",
