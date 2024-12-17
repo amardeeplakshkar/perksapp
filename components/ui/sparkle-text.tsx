@@ -116,7 +116,7 @@ const SparklesText: React.FC<SparklesTextProps> = ({
         {sparkles.map((sparkle) => (
           <Sparkle key={sparkle.id} {...sparkle} />
         ))}
-        <div className="block h-[20dvh] w-[30dvw]">
+        <div className="h-[20dvh] flex justify-center items-center w-[30dvw]">
         {children}
         </div>
       </span>

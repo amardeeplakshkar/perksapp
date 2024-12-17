@@ -9,7 +9,7 @@ import React, { useEffect, useState } from 'react'
 import { useUserData } from 'components/hooks/useUserData';
 import { Loader } from 'lucide-react';
 import TelegramStar from 'components/TelegramStar'
-import toast from 'react-hot-toast'  
+import toast from 'react-hot-toast'
 
 const gold = 'goldenrod'
 const silver = 'silver'
@@ -20,13 +20,15 @@ const Page = () => {
     const [loading, setLoading] = useState(false);
     const { userId } = useUserData();
     const [webApp, setWebApp] = useState<any>(null);
+    const [user, setUser] = useState<any>(null);  // Change user to any for ease of type handling
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const initWebApp = async () => {
             try {
                 if (typeof window !== 'undefined') {
                     const { default: WebApp } = await import('@twa-dev/sdk');
-                    setWebApp(WebApp); 
+                    setWebApp(WebApp);
                     WebApp.ready();
                 }
             } catch (error) {
@@ -40,6 +42,57 @@ const Page = () => {
         initWebApp();
     }, [userId]);
 
+    useEffect(() => {
+        const fetchUserData = async () => {
+            if (typeof window !== "undefined" && window.Telegram?.WebApp) {
+                const tg = window.Telegram.WebApp;
+                tg.ready();
+
+                const initDataUnsafe = tg.initDataUnsafe || { user };
+
+                if (initDataUnsafe.user) {
+                    try {
+                        const response = await fetch("/api/user", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(initDataUnsafe.user),
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok) {
+                            setUser(data || {});
+                        } else {
+                            throw new Error(data.error || "Failed to fetch user data");
+                        }
+                    } catch (err) {
+                        const errorMsg = "Failed to fetch user data: " + err.message;
+                        setError(errorMsg);
+                        toast.error(errorMsg); // Show toast for fetch error
+                        if (err.message === "Internal server error") {
+                            tg.close(); // Close the mini app on internal server error
+                        }
+                    } finally {
+                        setLoading(false);
+                    }
+                } else {
+                    const noUserError = "No user data available";
+                    setError(noUserError);
+                    toast.error(noUserError); // Show toast for no user data
+                    setUser({});
+                    setLoading(false);
+                }
+            } else {
+                const appError = "This app should be opened in Telegram";
+                setError(appError);
+                toast.error(appError);
+                setLoading(false);
+            }
+        };
+
+        fetchUserData();
+    }, []);
+
     const perkLevelMap = {
         'Diamond Perk': 'diamond',
         'Gold Perk': 'gold',
@@ -49,14 +102,14 @@ const Page = () => {
 
     const handleSendInvoice = async (candidate: string, paymentAmount: number) => {
         setLoading(true);
-    
+
         try {
             if (!webApp) {
                 return <Loader />;
             }
-    
+
             const telegramId = userId;
-    
+
             // Map candidate to perkLevel
             const perkLevel = perkLevelMap[candidate];
             if (!perkLevel) {
@@ -64,7 +117,7 @@ const Page = () => {
                 setLoading(false);
                 return;
             }
-    
+
             const response = await fetch('/api/send-invoice', {
                 method: 'POST',
                 headers: {
@@ -72,15 +125,15 @@ const Page = () => {
                 },
                 body: JSON.stringify({ telegramId, candidate, paymentAmount }),
             });
-    
+
             const data = await response.json();
-    
+
             if (data.success) {
                 const link = data.link;
                 webApp.openInvoice(link, async (status) => {
                     if (status === "paid") {
                         webApp.showAlert("Paid successfully");
-    
+
                         // Update the user's perk level
                         const perkLevelResponse = await fetch('/api/update-perk-level', {
                             method: 'POST',
@@ -89,9 +142,9 @@ const Page = () => {
                             },
                             body: JSON.stringify({ telegramId, perkLevel }),
                         });
-    
+
                         const perkLevelData = await perkLevelResponse.json();
-    
+
                         if (perkLevelData.success) {
                             toast.success("Perk level updated successfully!");
                         } else {
@@ -106,8 +159,16 @@ const Page = () => {
             console.error('Error:', error);
             toast.error('Something went wrong!');
         }
-    
+
         setLoading(false);
+    };
+
+    const disableButton = (level: string) => {
+        if (user?.perkLevel === "diamond") return true;
+        if (user?.perkLevel === "gold" && level !== "diamond") return true;
+        if (user?.perkLevel === "silver" && !["diamond", "gold"].includes(level)) return true;
+        if (user?.perkLevel === "bronze" && level === "bronze") return true;
+        return false;
     };
 
     return (
@@ -135,7 +196,7 @@ const Page = () => {
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>
-                        <RainbowButton className=" shine-effect w-full text-[.6rem] flex justify-center items-center text-white font-medium mt-2" onClick={() => handleSendInvoice('Diamond Perk', 199)} disabled={loading}>
+                        <RainbowButton className="shine-effect w-full text-[.6rem] flex justify-center items-center text-white font-medium mt-2" onClick={() => handleSendInvoice('Diamond Perk', 199)} disabled={loading || disableButton('diamond')}>
                             {loading ? <Loader className='animate-spin' /> : <>
                                 <TelegramStar />
                                 199
@@ -163,10 +224,10 @@ const Page = () => {
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>
-                        <RainbowButton className="shine-effect w-full text-[.6rem] flex justify-center items-center text-white font-medium mt-2" onClick={() => handleSendInvoice('Gold Perk', 149)} disabled={loading}>
+                        <RainbowButton className="shine-effect w-full text-[.6rem] flex justify-center items-center text-white font-medium mt-2" onClick={() => handleSendInvoice('Gold Perk', 169)} disabled={loading || disableButton('gold')}>
                             {loading ? <Loader className='animate-spin' /> : <>
                                 <TelegramStar />
-                                149
+                                169
                             </>}
                         </RainbowButton>
                     </Card>
@@ -190,10 +251,10 @@ const Page = () => {
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>
-                        <RainbowButton className="shine-effect w-full text-[.6rem] flex justify-center items-center text-white font-medium mt-2" onClick={() => handleSendInvoice('Silver Perk', 109)} disabled={loading}>
+                        <RainbowButton className="shine-effect w-full text-[.6rem] flex justify-center items-center text-white font-medium mt-2" onClick={() => handleSendInvoice('Silver Perk', 99)} disabled={loading || disableButton('silver')}>
                             {loading ? <Loader className='animate-spin' /> : <>
                                 <TelegramStar />
-                                109
+                                99
                             </>}
                         </RainbowButton>
                     </Card>
@@ -212,12 +273,11 @@ const Page = () => {
                                         <li>2x TGE allocation boost</li>
                                         <li>100% TGE unlock</li>
                                         <li>2x rewards per referral</li>
-                                        <li>10% discount on daily check-in</li>
                                     </ul>
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>
-                        <RainbowButton className="shine-effect w-full text-[.6rem] flex justify-center items-center text-white font-medium mt-2" onClick={() => handleSendInvoice('Bronze Perk', 2)} disabled={loading}>
+                        <RainbowButton className="shine-effect w-full text-[.6rem] flex justify-center items-center text-white font-medium mt-2" onClick={() => handleSendInvoice('Bronze Perk', 69)} disabled={loading || disableButton('bronze')}>
                             {loading ? <Loader className='animate-spin' /> : <>
                                 <TelegramStar />
                                 69
@@ -227,7 +287,8 @@ const Page = () => {
                 </main>
             </section>
         </>
-    )
-}
+    );
+};
+
 
 export default Page

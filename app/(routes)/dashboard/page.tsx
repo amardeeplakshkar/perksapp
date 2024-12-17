@@ -9,6 +9,7 @@ import React, { useEffect, useState } from 'react';
 import { FaAward } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import Perks from 'components/Perks';
+import ShinyButton from 'components/ui/shiny-button';
 
 const Dashboard: React.FC = () => {
   const [user, setUser] = useState(null);
@@ -18,7 +19,7 @@ const Dashboard: React.FC = () => {
   const [initData, setInitData] = useState('');
   const [userId, setUserId] = useState('');
   const [startParam, setStartParam] = useState('');
-
+const perkLevel  = "diamond"
   // Initialize WebApp and referral system
   useEffect(() => {
     const initWebApp = async () => {
@@ -151,23 +152,41 @@ const Dashboard: React.FC = () => {
               <div className="text-base uppercase">perks</div>
             </div>
           </div>
-          <div className='group bg-white/5 cursor-pointer p-2 px-4 rounded-full '>
-            <p onClick={() => router.push("/shop")} className='flex justify-center items-center text-sm group-hover:shine-effect font-semibold'>
-              {
-                user?.perkLevel === "none"
-                  ? "Upgrade Level"
-                  : user?.perkLevel === "diamond"
-                    ? "Diamond Perk"
-                    : user?.perkLevel === "gold"
-                      ? "Gold Perk"
-                      : user?.perkLevel === "silver"
-                        ? "Silver Perk"
-                        : user?.perkLevel === "bronze"
-                          ? "Bronze Perk"
-                          : "Unknown Perk Level"
-              }
+          <div className='group  '>
+            <ShinyButton
+              onClick={() => router.push("/shop")}
+              className="cursor-pointer p-2 px-4 rounded-full text-sm group-hover:shine-effect font-semibold"
+            >
+              <span
+                className={`${user?.perkLevel === "none"
+                    ? "text-white/90"
+                    : user?.perkLevel === "diamond"
+                      ? "text-diamond-500/90"
+                      : user?.perkLevel === "gold"
+                        ? "text-gold-500/90"
+                        : user?.perkLevel === "silver"
+                          ? "text-silver-500/90"
+                          : user?.perkLevel === "bronze"
+                            ? "text-bronze-500/90"
+                            : "text-white/90"
+                  } flex justify-center items-center`}
+              >
+                {
+                  user?.perkLevel === "none"
+                    ? "Upgrade Level"
+                    : user?.perkLevel === "diamond"
+                      ? "Diamond Perk"
+                      : user?.perkLevel === "gold"
+                        ? "Gold Perk"
+                        : user?.perkLevel === "silver"
+                          ? "Silver Perk"
+                          : user?.perkLevel === "bronze"
+                            ? "Bronze Perk"
+                            : "Unknown Perk"
+                }
               <ChevronRight size={"1rem"} />
-            </p>
+              </span>
+            </ShinyButton>
           </div>
         </div>
         <div className=" btns-con w-full">
