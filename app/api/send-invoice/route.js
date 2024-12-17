@@ -47,12 +47,10 @@ bot.on('pre_checkout_query', async (ctx) => {
 
 export async function POST(request) {
   try {
-    const { telegramId, candidate } = await request.json();
+    const { telegramId, candidate, paymentAmount } = await request.json();
 
-    // Define the price for the candidate (1 XTR for the candidate)
-    const prices = [{ label: 'XTR', amount: 1 }];
+    const prices = [{ label: 'XTR', amount: paymentAmount }];
 
-    // Generate the invoice link
     const invoiceLink = await bot.telegram.createInvoiceLink({
       title: `${candidate}`,
       description: `Buy ${candidate} for ${prices[0].amount} Star.`,

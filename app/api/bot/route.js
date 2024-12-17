@@ -4,29 +4,10 @@ export const fetchCache = 'force-no-store';
 import { Bot, webhookCallback } from 'grammy';
 
 const token = process.env.NEXT_PUBLIC_BOT_TOKEN;
-const PROVIDER_TOKEN = process.env.NEXT_PUBLIC_PROVIDER_TOKEN;
 
 if (!token) throw new Error('TELEGRAM_BOT_TOKEN environment variable not found.');
 
 const bot = new Bot(token);
-
-const paidUsers = new Map();
-
-bot.command('start', (ctx) =>
-  ctx.reply(
-    `Welcome! I am a simple bot that can accept payments via Telegram Stars. The following commands are available:
-
-/pay - to pay
-/status - to check payment status
-/refund - to refund payment`
-  )
-);
-
-bot.command('pay', (ctx) => {
-  return ctx.replyWithInvoice('Test Product', 'Test description', '{}', 'XTR', [
-    { amount: 1, label: 'Test Product' },
-  ]);
-});
 
 bot.on('pre_checkout_query', (ctx) => {
   return ctx.answerPreCheckoutQuery(true).catch(() => {
@@ -34,36 +15,16 @@ bot.on('pre_checkout_query', (ctx) => {
   });
 });
 
-bot.on('message:successful_payment', (ctx) => {
-  if (!ctx.message || !ctx.message.successful_payment || !ctx.from) {
-    return;
+bot.on('successful_payment', async (ctx) => {
+  const payload = ctx.message.successful_payment.invoice_payload;
+  const candidate = payload.replace('buy_', '').replace('_payload', '');
+
+  try {
+    ctx.reply(`🎉 Purchase Successful! You Have Upgraded to  ${candidate} Level!`);
+  } catch (error) {
+    console.error('Error saving payment:', error);
+    ctx.reply('⚠️ There was an issue recording your payment. Please try again later.');
   }
-
-  paidUsers.set(ctx.from.id, ctx.message.successful_payment.telegram_payment_charge_id);
-  console.log(ctx.message.successful_payment);
 });
 
-bot.command('status', (ctx) => {
-  const message = paidUsers.has(ctx.from.id)
-    ? 'You have paid'
-    : 'You have not paid yet';
-  return ctx.reply(message);
-});
-
-bot.command('refund', (ctx) => {
-  const userId = ctx.from.id;
-  if (!paidUsers.has(userId)) {
-    return ctx.reply('You have not paid yet, there is nothing to refund');
-  }
-
-  ctx.api
-    .refundStarPayment(userId, paidUsers.get(userId))
-    .then(() => {
-      paidUsers.delete(userId);
-      return ctx.reply('Refund successful');
-    })
-    .catch(() => ctx.reply('Refund failed'));
-});
-
-// Set up webhook handling in the Next.js API route
 export const POST = webhookCallback(bot, 'std/http');

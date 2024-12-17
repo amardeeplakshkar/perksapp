@@ -19,7 +19,7 @@ const Perks: React.FC<PerksProps> = ({ medal, size }) => {
     const color = medalColors[medal || ''] || 'white';
 
     return (
-        <SparklesText sparklesCount={5} className='' colors={{ first: color, second: color }}>
+        <SparklesText sparklesCount={8} className='' colors={{ first: color, second: color }}>
             <DynamicSVGIcon color={color} size={size}/>
         </SparklesText>
     );

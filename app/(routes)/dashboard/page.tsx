@@ -28,24 +28,24 @@ const Dashboard: React.FC = () => {
         const initData = WebApp.initData;
         const userId = WebApp.initDataUnsafe.user?.id.toString() || '';
         const startParam = WebApp.initDataUnsafe.start_param || '';
-  
+
         console.log("initWebApp initialized with:", { initData, userId, startParam });
-  
+
         // Set the state
         setInitData(initData);
         setUserId(userId);
         setStartParam(startParam);
-  
+
         // Call checkReferral with the current values
         if (startParam && userId) {
           checkReferral(userId, startParam);
         }
       }
     };
-  
+
     initWebApp();
   }, []); // Ensure this runs only once
-  
+
   const checkReferral = async (currentUserId, currentStartParam) => {
     console.log("checkReferral function called with:", { currentUserId, currentStartParam });
     if (currentStartParam && currentUserId) {
@@ -55,7 +55,7 @@ const Dashboard: React.FC = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: currentUserId, referrerId: currentStartParam }),
         });
-  
+
         if (!referralResponse.ok) throw new Error('Failed to save referral');
         console.log("Referral saved successfully");
       } catch (error) {
@@ -65,7 +65,7 @@ const Dashboard: React.FC = () => {
       console.log("Referral not triggered. Missing parameters:", { currentUserId, currentStartParam });
     }
   };
-  
+
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -136,9 +136,12 @@ const Dashboard: React.FC = () => {
         <div className="flex flex-1 flex-col justify-center gap-2 items-center">
           <TonConnectButton />
           <div className='flex flex-col items-center mt-8'>
-            {/* Is Medal */}
-            {/* <Perks medal={"bronze"} size={"8rem"}/> */}
-            <FaAward size={"8rem"}/>
+            {
+              user?.perkLevel === "none" ?
+                <FaAward size={"8rem"} />
+                :
+                <Perks medal={user?.perkLevel} size={"8rem"} />
+            }
             <div className="text-center flex items-center gap-2 pt-2">
               <div className="text-4xl font-semibold">
                 {user?.points !== undefined && user?.points !== null
@@ -148,11 +151,24 @@ const Dashboard: React.FC = () => {
               <div className="text-base uppercase">perks</div>
             </div>
           </div>
-         <div className='group bg-white/5 cursor-pointer p-2 px-4 rounded-full '>
-         <p onClick={() => router.push("/shop")} className='flex justify-center items-center text-sm group-hover:shine-effect font-semibold'>
-            Perks Level <ChevronRight size={"1rem"}/>
-          </p>
-         </div>
+          <div className='group bg-white/5 cursor-pointer p-2 px-4 rounded-full '>
+            <p onClick={() => router.push("/shop")} className='flex justify-center items-center text-sm group-hover:shine-effect font-semibold'>
+              {
+                user?.perkLevel === "none"
+                  ? "Upgrade Level"
+                  : user?.perkLevel === "diamond"
+                    ? "Diamond Perk"
+                    : user?.perkLevel === "gold"
+                      ? "Gold Perk"
+                      : user?.perkLevel === "silver"
+                        ? "Silver Perk"
+                        : user?.perkLevel === "bronze"
+                          ? "Bronze Perk"
+                          : "Unknown Perk Level"
+              }
+              <ChevronRight size={"1rem"} />
+            </p>
+          </div>
         </div>
         <div className=" btns-con w-full">
           <Card className="btn-item comunity shine-effect bg-background">

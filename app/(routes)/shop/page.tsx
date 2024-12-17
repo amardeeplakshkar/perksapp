@@ -40,31 +40,65 @@ const Page = () => {
         initWebApp();
     }, [userId]);
 
-    const handleSendInvoice = async (candidate: string) => {
+    const perkLevelMap = {
+        'Diamond Perk': 'diamond',
+        'Gold Perk': 'gold',
+        'Silver Perk': 'silver',
+        'Bronze Perk': 'bronze',
+    };
+
+    const handleSendInvoice = async (candidate: string, paymentAmount: number) => {
         setLoading(true);
     
         try {
             if (!webApp) {
-                return <Loader/>;
+                return <Loader />;
             }
     
             const telegramId = userId;
+    
+            // Map candidate to perkLevel
+            const perkLevel = perkLevelMap[candidate];
+            if (!perkLevel) {
+                toast.error("Invalid perk level selected.");
+                setLoading(false);
+                return;
+            }
+    
             const response = await fetch('/api/send-invoice', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ telegramId, candidate }),
+                body: JSON.stringify({ telegramId, candidate, paymentAmount }),
             });
     
             const data = await response.json();
     
             if (data.success) {
                 const link = data.link;
-                webApp.openInvoice(link , (status) => {
-                    if (status === "paid")
-                        webApp.showAlert("paid sucessfully");
-                }); 
+                webApp.openInvoice(link, async (status) => {
+                    if (status === "paid") {
+                        webApp.showAlert("Paid successfully");
+    
+                        // Update the user's perk level
+                        const perkLevelResponse = await fetch('/api/update-perk-level', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ telegramId, perkLevel }),
+                        });
+    
+                        const perkLevelData = await perkLevelResponse.json();
+    
+                        if (perkLevelData.success) {
+                            toast.success("Perk level updated successfully!");
+                        } else {
+                            toast.error(`Failed to update perk level: ${perkLevelData.error}`);
+                        }
+                    }
+                });
             } else {
                 toast.error(`Failed to create invoice: ${data.error}`);
             }
@@ -101,7 +135,7 @@ const Page = () => {
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>
-                        <RainbowButton className=" shine-effect w-full text-[.6rem] flex justify-center items-center text-white font-medium mt-2" onClick={() => handleSendInvoice('Diamond Perk')} disabled={loading}>
+                        <RainbowButton className=" shine-effect w-full text-[.6rem] flex justify-center items-center text-white font-medium mt-2" onClick={() => handleSendInvoice('Diamond Perk', 199)} disabled={loading}>
                             {loading ? <Loader className='animate-spin' /> : <>
                                 <TelegramStar />
                                 199
@@ -129,7 +163,7 @@ const Page = () => {
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>
-                        <RainbowButton className="shine-effect w-full text-[.6rem] flex justify-center items-center text-white font-medium mt-2" onClick={() => handleSendInvoice('Gold Perk')} disabled={loading}>
+                        <RainbowButton className="shine-effect w-full text-[.6rem] flex justify-center items-center text-white font-medium mt-2" onClick={() => handleSendInvoice('Gold Perk', 149)} disabled={loading}>
                             {loading ? <Loader className='animate-spin' /> : <>
                                 <TelegramStar />
                                 149
@@ -156,7 +190,7 @@ const Page = () => {
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>
-                        <RainbowButton className="shine-effect w-full text-[.6rem] flex justify-center items-center text-white font-medium mt-2" onClick={() => handleSendInvoice('Silver Perk')} disabled={loading}>
+                        <RainbowButton className="shine-effect w-full text-[.6rem] flex justify-center items-center text-white font-medium mt-2" onClick={() => handleSendInvoice('Silver Perk', 109)} disabled={loading}>
                             {loading ? <Loader className='animate-spin' /> : <>
                                 <TelegramStar />
                                 109
@@ -183,7 +217,7 @@ const Page = () => {
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>
-                        <RainbowButton className="shine-effect w-full text-[.6rem] flex justify-center items-center text-white font-medium mt-2" onClick={() => handleSendInvoice('Bronze Perk')} disabled={loading}>
+                        <RainbowButton className="shine-effect w-full text-[.6rem] flex justify-center items-center text-white font-medium mt-2" onClick={() => handleSendInvoice('Bronze Perk', 2)} disabled={loading}>
                             {loading ? <Loader className='animate-spin' /> : <>
                                 <TelegramStar />
                                 69

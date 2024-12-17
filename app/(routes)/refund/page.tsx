@@ -47,7 +47,6 @@ const SendInvoicePage = () => {
       <Button 
         onClick={handleSendInvoice} 
         className="mt-4 w-full" 
-        disabled={loading || !paymentId} 
       >
         {loading ? <Loader className="animate-spin" /> : 'Submit'}
       </Button>
