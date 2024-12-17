@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     // Find the referrer by telegramId
     const referrer = await prisma.user.findUnique({
       where: { telegramId: parseInt(referrerId) },
-    });
+    })
 
     if (!referrer) {
       return NextResponse.json({ error: 'Referrer not found' }, { status: 404 });
@@ -55,10 +55,31 @@ export async function POST(request: NextRequest) {
     });
 
     // Add points to the referrer
-    await prisma.user.update({
-      where: { telegramId: referrer.telegramId },
-      data: { points: { increment: 500 } },
-    });
+    if (referrer) {
+      // Determine multiplier based on referrer's perkLevel
+      let multiplier = 1; // Default multiplier
+      switch (referrer.perkLevel) {
+        case "bronze":
+          multiplier = 2;
+          break;
+        case "silver":
+          multiplier = 3;
+          break;
+        case "gold":
+          multiplier = 4;
+          break;
+        case "diamond":
+          multiplier = 5;
+          break;
+        // "none" defaults to 1 (no multiplier)
+      }
+
+      // Update referrer's points with multiplied amount
+      await prisma.user.update({
+        where: { telegramId: referrer.telegramId },
+        data: { points: { increment: 500 * multiplier } },
+      });
+    }
 
     return NextResponse.json({ success: true, newUser, referrerPoints: 500 });
   } catch (error) {

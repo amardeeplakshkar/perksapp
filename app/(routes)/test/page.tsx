@@ -24,7 +24,7 @@ const UserProfile = () => {
       <p>Points: {userData.points}</p>
       <p>Referred By: {userData.referredByTelegramId || 'N/A'}</p>
 
-      <h3>Referrals:</h3>
+      <h3>Referrals: {userData.referrals.length} </h3>
       <ul>
         {userData.referrals.map((referral) => (
           <li key={referral.telegramId}>

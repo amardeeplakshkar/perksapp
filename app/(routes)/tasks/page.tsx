@@ -40,7 +40,7 @@ export default function Tasks() {
     const [tonConnectUI] = useTonConnectUI();
     const router = useRouter();
     const [anyLoading, setAnyLoading] = useState(false);
-    const {userData} = useUserData()
+    const { userData } = useUserData()
     const [loadingTasks, setLoadingTasks] = useState<Record<string, boolean>>({});
 
     const handleTaskStart = (taskId: string) => {
@@ -92,10 +92,6 @@ export default function Tasks() {
         fetchUserData();
     }, []);
 
-    const handleReferTask = () => {
-        router.push("/friends")
-    };
-
     const handleJoinPartnerTask = (taskId: string, taskReward: number, taskTitle: string, taskPath: string) => async () => {
 
         try {
@@ -143,6 +139,50 @@ export default function Tasks() {
         }
     };
 
+    const handleReferTask = (taskId: string, taskReward: number, referCount: number) => async () => {
+
+        if (userData.referrals.length !== referCount) {
+            router.push("/friends");
+            toast.error(`Minimum ${referCount} Referrals are required`);
+            return;
+        }
+
+        try {
+            const response = await fetch("/api/complete-task", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: String(user?.telegramId),
+                    taskId: taskId,
+                    points: taskReward
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) throw new Error(data.error || "Failed try again!");
+
+            setUser((prevUser) => ({
+                ...prevUser!,
+                points: (prevUser?.points || 0) + taskReward,
+            }));
+
+            // Mark the task as completed
+            setCompletedTasks((prev) => ({
+                ...prev,
+                [taskId]: true,
+            }));
+
+            toast.success(`Congratulations 🎉! To Hit ${referCount} Refers Milestone`);
+
+        } catch (error: any) {
+            console.error("Failed to complete:", error);
+            toast.error(error.message || "Failed to complete");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleLevelTask = async () => {
 
         if (userData.perkLevel === "none") {
@@ -164,13 +204,23 @@ export default function Tasks() {
 
             const data = await response.json();
 
-            if (!response.ok) throw new Error(data.error || "Failed to complete wallet connect task.");
+            if (!response.ok) throw new Error(data.error || "Failed try again!");
 
-            toast.success("Wallet connected and points added successfully! 🎉");
+            setUser((prevUser) => ({
+                ...prevUser!,
+                points: (prevUser?.points || 0) + 25000
+            }));
+
+            setCompletedTasks((prev) => ({
+                ...prev,
+                "L07f1f77bcf86cd799439003": true,
+            }));
+
+            toast.success("Level Upgraded and points added successfully! 🎉");
 
         } catch (error: any) {
-            console.error("Failed to complete wallet connect task:", error);
-            toast.error(error.message || "Failed to complete wallet connect task. Please try again.");
+            console.error("Failed to complete:", error);
+            toast.error(error.message || "Failed to complete");
         } finally {
             setIsLoading(false);
         }
@@ -227,16 +277,31 @@ export default function Tasks() {
             return;
         }
 
-
         try {
+            const originalValue = 0.5 * 1e9; 
 
-            // Proceed with the TON transaction after 10 seconds
+            let discountPercentage = 0; 
+            switch (userData?.perkLevel) {
+                case "silver":
+                    discountPercentage = 20;
+                    break;
+                case "gold":
+                    discountPercentage = 30;
+                    break;
+                case "diamond":
+                    discountPercentage = 50;
+                    break;
+            }
+
+            const discountedValue = originalValue * (1 - discountPercentage / 100);
+            const discountedValueString = discountedValue.toString();
+        
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now() / 1000) + 60,
                 messages: [
                     {
                         address: recipient,
-                        amount: (0.5 * 1e9).toString(),
+                        amount: discountedValueString,
                     },
                 ],
             });
@@ -246,14 +311,22 @@ export default function Tasks() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     userId: String(user?.telegramId),
-                    taskId: 'L07f1f77bcf86cd799439001',
+                    taskId: 'M07f1f77bcf86cd799439001',
                     points: 20000,
                 }),
             });
 
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || "Failed to add points.");
+            setUser((prevUser) => ({
+                ...prevUser!,
+                points: (prevUser?.points || 0) + 20000
+            }));
 
+            setCompletedTasks((prev) => ({
+                ...prev,
+                "M07f1f77bcf86cd799439001": true,
+            }));
             toast.success("Transaction successful! 20,000 Perks added 🎉");
         } catch (error: any) {
             console.error("Transaction failed:", error);
@@ -267,7 +340,7 @@ export default function Tasks() {
     const taskData = {
         limited: [
             {
-                id: "L07f1f77bcf86cd799439001",
+                id: "M07f1f77bcf86cd799439001",
                 icon: "ton",
                 title: "Daily Check-In",
                 reward: 20000,
@@ -300,7 +373,7 @@ export default function Tasks() {
             {
                 id: "G07f1f77bcf86cd799439001",
                 icon: <FaTelegramPlane size={"1.5rem"} />,
-                title: "Join Telegram",
+                title: "PERKS Community",
                 reward: 5000,
                 bg: "bg-blue-500",
                 onClick: handleJoinPartnerTask("G07f1f77bcf86cd799439001", 5000, "PERKS Community", "https://t.me/perkscommunity"),
@@ -323,11 +396,38 @@ export default function Tasks() {
             {
                 id: "G07f1f77bcf86cd799439004",
                 icon: <BsPeopleFill size={"1.5rem"} />,
+                title: "Refer 5 Friends",
+                reward: 1000,
+                status: "1/1",
+                onClick: handleReferTask("G07f1f77bcf86cd799439004", 1000, 5),
+                bg: "bg-green-500"
+            },
+            {
+                id: "G07f1f77bcf86cd799439005",
+                icon: <BsPeopleFill size={"1.5rem"} />,
                 title: "Refer 10 Friends",
                 reward: 5000,
                 status: "1/1",
-                onClick: handleReferTask,
-                bg: "bg-green-500"
+                onClick: handleReferTask("G07f1f77bcf86cd799439005", 5000, 10),
+                bg: "bg-violet-500"
+            },
+            {
+                id: "G07f1f77bcf86cd799439006",
+                icon: <BsPeopleFill size={"1.5rem"} />,
+                title: "Refer 25 Friends",
+                reward: 10000,
+                status: "1/1",
+                onClick: handleReferTask("G07f1f77bcf86cd799439006", 10000, 25),
+                bg: "bg-gold-500"
+            },
+            {
+                id: "G07f1f77bcf86cd799439007",
+                icon: <BsPeopleFill size={"1.5rem"} />,
+                title: "Refer 50 Friends",
+                reward: 20000,
+                status: "1/1",
+                onClick: handleReferTask("G07f1f77bcf86cd799439007", 20000, 50),
+                bg: "bg-diamond-500"
             },
         ],
         partner: [

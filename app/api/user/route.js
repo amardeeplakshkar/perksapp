@@ -102,16 +102,32 @@ export async function POST(req) {
         },
       });
 
-      // Award points to the referrer if applicable
       if (referrerId) {
         const referrer = await prisma.user.findUnique({
           where: { telegramId: parseInt(referrerId) },
         });
 
         if (referrer) {
+          // Determine multiplier based on referrer's perkLevel
+          let multiplier = 1; // Default multiplier
+          switch (referrer.perkLevel) {
+            case "bronze":
+              multiplier = 2;
+              break;
+            case "silver":
+              multiplier = 3;
+              break;
+            case "gold":
+              multiplier = 4;
+              break;
+            case "diamond":
+              multiplier = 5;
+              break;
+          }
+
           await prisma.user.update({
             where: { telegramId: referrer.telegramId },
-            data: { points: { increment: 500 } }, // Award 500 points
+            data: { points: { increment: 500 * multiplier } },
           });
         }
       }
