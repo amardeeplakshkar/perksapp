@@ -28,7 +28,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, completedTasks, taskLoading }
   useEffect(() => {
     // Set the target time to midnight of the next day
     const targetTime = new Date();
-    targetTime.setHours(24, 0, 0, 0);  // Set to midnight of the next day
+    targetTime.setHours(96, 0, 0, 0); 
 
     const updateCountdown = () => {
       const now = new Date().getTime();
@@ -38,14 +38,26 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, completedTasks, taskLoading }
         setTimeLeft("00:00:00");
         clearInterval(interval);
       } else {
-        const hours = Math.floor(difference / (1000 * 60 * 60));
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-        const formattedHours = String(hours).padStart(2, "0");
-        const formattedMinutes = String(minutes).padStart(2, "0");
-        const formattedSeconds = String(seconds).padStart(2, "0");
 
-        setTimeLeft(`${formattedHours}:${formattedMinutes}:${formattedSeconds}`);
+        let formattedTime;
+
+        if (days > 0) {
+          // If days exist, show "Xd HH" format
+          const formattedHours = String(hours).padStart(2, "0");
+          formattedTime = `${days}d ${formattedHours}h`;
+        } else {
+          // If no days, show "HH:MM:SS" format
+          const formattedHours = String(hours).padStart(2, "0");
+          const formattedMinutes = String(minutes).padStart(2, "0");
+          const formattedSeconds = String(seconds).padStart(2, "0");
+          formattedTime = `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+        }
+
+        setTimeLeft(formattedTime);
       }
     };
 
@@ -113,6 +125,17 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, completedTasks, taskLoading }
           >
             {taskLoading ? <FaSpinner className="animate-spin" size={16} /> : "VOTE"}
           </Button>
+        ) : task.status === "limited" ? (
+          <div className="flex  items-center flex-col gap-1">
+          <Button
+            onClick={task.onClick}
+            className="rounded-full text-[.65rem] h-7 font-semibold hover:bg-blue-600 bg-blue-500 text-white"
+            disabled={taskLoading}
+          >
+            {taskLoading ? <FaSpinner className="animate-spin" size={16} /> : "Check"}
+          </Button>
+           <div className="text-xs">{timeLeft}</div>
+          </div>
         ) : (
           <Button
             onClick={task.onClick}

@@ -21,6 +21,7 @@ type UserData = {
   referrals: Referral[];
   completedTaskIds: number[];
   photo_url: string;
+  perkLevel : string;
 };
 
 export const useUserData = () => {

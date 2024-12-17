@@ -13,6 +13,8 @@ import toast from 'react-hot-toast';
 import LogoHeader from 'components/LogoHeader';
 import { FaAward, FaLink, FaTelegramPlane, FaTwitter, FaWallet } from 'react-icons/fa';
 import { BsPeopleFill, BsTwitterX } from 'react-icons/bs';
+import DynamicSVGIcon from 'components/icon';
+import { useUserData } from 'components/hooks/useUserData';
 
 
 const recipient = process.env.NEXT_PUBLIC_TON_WALLET_ADDRESS;
@@ -38,17 +40,17 @@ export default function Tasks() {
     const [tonConnectUI] = useTonConnectUI();
     const router = useRouter();
     const [anyLoading, setAnyLoading] = useState(false);
-
+    const {userData} = useUserData()
     const [loadingTasks, setLoadingTasks] = useState<Record<string, boolean>>({});
 
     const handleTaskStart = (taskId: string) => {
-      // Set the task as loading
-      setLoadingTasks((prev) => ({ ...prev, [taskId]: true }));
-  
-      // Reset the loading state after 10 seconds
-      setTimeout(() => {
-        setLoadingTasks((prev) => ({ ...prev, [taskId]: false }));
-      }, 10000);
+        // Set the task as loading
+        setLoadingTasks((prev) => ({ ...prev, [taskId]: true }));
+
+        // Reset the loading state after 10 seconds
+        setTimeout(() => {
+            setLoadingTasks((prev) => ({ ...prev, [taskId]: false }));
+        }, 10000);
     };
 
     const fetchUserData = async () => {
@@ -95,8 +97,8 @@ export default function Tasks() {
     };
 
     const handleJoinPartnerTask = (taskId: string, taskReward: number, taskTitle: string, taskPath: string) => async () => {
-      
-        try {           
+
+        try {
             window.open(taskPath, "_blank");
 
             if (!user) {
@@ -141,18 +143,48 @@ export default function Tasks() {
         }
     };
 
+    const handleLevelTask = async () => {
+
+        if (userData.perkLevel === "none") {
+            router.push("/shop");
+            toast.error("Upgrade To Any Level First!");
+            return;
+        }
+
+        try {
+            const response = await fetch("/api/complete-task", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: String(user?.telegramId),
+                    taskId: "L07f1f77bcf86cd799439003",
+                    points: 25000
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) throw new Error(data.error || "Failed to complete wallet connect task.");
+
+            toast.success("Wallet connected and points added successfully! 🎉");
+
+        } catch (error: any) {
+            console.error("Failed to complete wallet connect task:", error);
+            toast.error(error.message || "Failed to complete wallet connect task. Please try again.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleWalletConnectTask = useCallback(async () => {
-        
+
         if (!tonConnectUI.connected) {
             router.push("/dashboard");
             toast.error("Connect Wallet First");
             return;
         }
-        
-        try {
-         
 
-            // Proceed with wallet connection and task completion after 10 seconds
+        try {
             const response = await fetch("/api/complete-task", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -188,16 +220,16 @@ export default function Tasks() {
     }, [tonConnectUI, router, user]);
 
     const handleTonTransaction = useCallback(async () => {
-        
+
         if (!tonConnectUI.connected) {
             router.push("/dashboard");
             toast.error("Connect Wallet First");
             return;
         }
 
-      
+
         try {
-         
+
             // Proceed with the TON transaction after 10 seconds
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now() / 1000) + 60,
@@ -245,13 +277,24 @@ export default function Tasks() {
                 onClick: handleTonTransaction,
             },
             {
-                id: "L07f1f77bcf86cd799439002",
-                icon: <span className="scale-125 h-[25px] w-[25px] flex justify-center items-center">😳</span>,
-                title: "Mystery Quest",
-                reward: 10000,
-                status: "0/1",
-                bg: "bg-foreground/10",
+                id: "L07f1f77bcf86cd799439003",
+                icon: <DynamicSVGIcon color={""} size={"1rem"} />,
+                title: "Upgrade Perk",
+                reward: 25000,
+                bg: 'bg-emerald-500/75',
+                bottom: 'border-b-2',
+                img: true,
+                onClick: handleLevelTask,
+                status: "limited"
             },
+            // {
+            //     id: "L07f1f77bcf86cd799439002",
+            //     icon: <span className="scale-125 h-[25px] w-[25px] flex justify-center items-center">😳</span>,
+            //     title: "Mystery Quest",
+            //     reward: 10000,
+            //     status: "0/1",
+            //     bg: "bg-foreground/10",
+            // },
         ],
         InGame: [
             {
@@ -265,7 +308,7 @@ export default function Tasks() {
             {
                 id: "G07f1f77bcf86cd799439002",
                 icon: <FaWallet size={"1.5rem"} />,
-                title: "Join Telegram",
+                title: "Connect Wallet",
                 reward: 5000,
                 bg: "bg-sky-500",
                 onClick: handleWalletConnectTask
@@ -296,7 +339,7 @@ export default function Tasks() {
                 onClick: handleJoinPartnerTask("P07f1f77bcf86cd799439205", 1500, "Bums", "https://t.me/bums?start=_tgr_fpR3jAUxZGRl"),
                 img: true,
             },
-    
+
             {
                 id: "P07f1f77bcf86cd799439207",
                 icon: "duckchain",
@@ -324,7 +367,7 @@ export default function Tasks() {
                 onClick: handleJoinPartnerTask("P07f1f77bcf86cd799439209", 1000, "Trump Empire", "https://t.me/TrumpsEmpireBot?start=_tgr_h9FpSN5hNWVl"),
                 img: true,
             },
-            
+
             {
                 id: "P07f1f77bcf86cd799439211",
                 icon: "starhash",
