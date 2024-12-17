@@ -23,11 +23,11 @@ interface User {
     firstName: string;
     completedTaskIds: string[];
     points?: number;
-  }
-  
-  interface InitDataUnsafe {
+}
+
+interface InitDataUnsafe {
     user?: User;
-  }
+}
 
 export default function Tasks() {
     const [activeTab, setActiveTab] = useState("limited");
@@ -37,46 +37,57 @@ export default function Tasks() {
     const [isLoading, setIsLoading] = useState(false);
     const [tonConnectUI] = useTonConnectUI();
     const router = useRouter();
-    const [loadingTasks, setLoadingTasks] = useState<Record<string, boolean>>({});
     const [anyLoading, setAnyLoading] = useState(false);
-    
-    const fetchUserData = async () => {
-      if (window.Telegram?.WebApp) {
-        const tg = window.Telegram.WebApp;
-        tg.ready();
+
+    const [loadingTasks, setLoadingTasks] = useState<Record<string, boolean>>({});
+
+    const handleTaskStart = (taskId: string) => {
+      // Set the task as loading
+      setLoadingTasks((prev) => ({ ...prev, [taskId]: true }));
   
-        const initDataUnsafe: InitDataUnsafe = tg.initDataUnsafe || {};
-        if (initDataUnsafe.user) {
-          try {
-            const response = await fetch("/api/user", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(initDataUnsafe.user),
-            });
-  
-            if (!response.ok) {
-              throw new Error("Failed to fetch user data.");
-            }
-  
-            const data = await response.json();
-            setUser(data);
-            setCompletedTasks(
-              data.completedTaskIds.reduce((acc, taskId) => {
-                acc[taskId] = true;
-                return acc;
-              }, {})
-            );
-          } catch (err: any) {
-            console.error("Failed to fetch user data:", err.message);
-            toast.error(err.message || "Failed to fetch user data.");
-          }
-        }
-      }
-      setLoading(false);
+      // Reset the loading state after 10 seconds
+      setTimeout(() => {
+        setLoadingTasks((prev) => ({ ...prev, [taskId]: false }));
+      }, 10000);
     };
-  
+
+    const fetchUserData = async () => {
+        if (window.Telegram?.WebApp) {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
+
+            const initDataUnsafe: InitDataUnsafe = tg.initDataUnsafe || {};
+            if (initDataUnsafe.user) {
+                try {
+                    const response = await fetch("/api/user", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(initDataUnsafe.user),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch user data.");
+                    }
+
+                    const data = await response.json();
+                    setUser(data);
+                    setCompletedTasks(
+                        data.completedTaskIds.reduce((acc, taskId) => {
+                            acc[taskId] = true;
+                            return acc;
+                        }, {})
+                    );
+                } catch (err: any) {
+                    console.error("Failed to fetch user data:", err.message);
+                    toast.error(err.message || "Failed to fetch user data.");
+                }
+            }
+        }
+        setLoading(false);
+    };
+
     useEffect(() => {
-      fetchUserData();
+        fetchUserData();
     }, []);
 
     const handleReferTask = () => {
@@ -84,19 +95,27 @@ export default function Tasks() {
     };
 
     const handleJoinPartnerTask = (taskId: string, taskReward: number, taskTitle: string, taskPath: string) => async () => {
-        window.open(taskPath, "_blank");
-
-        // Check if user is defined
-        if (!user) {
-            console.error("User is not defined");
-            return;
-        }
-
-        // Start loading state for the task
+        // Show loading button state
         setLoadingTasks((prev) => ({ ...prev, [taskId]: true }));
         setAnyLoading(true);
+        setLoading(true); // Start loading
+        setTimeout(() => {
+            setLoading(false); // Stop loading after 10 seconds
+        }, 10000); // 10 seconds delay
 
         try {
+            // Simulate a 10-second delay before completing the task
+            await new Promise((resolve) => setTimeout(resolve, 10000));
+
+            // Proceed with the task completion logic after 10 seconds
+            window.open(taskPath, "_blank");
+
+            // Check if user is defined
+            if (!user) {
+                console.error("User is not defined");
+                return;
+            }
+
             // Call the API to complete the task and award points
             const response = await fetch("/api/complete-task", {
                 method: "POST",
@@ -135,6 +154,10 @@ export default function Tasks() {
     };
 
     const handleWalletConnectTask = useCallback(async () => {
+        setLoading(true); // Start loading
+        setTimeout(() => {
+            setLoading(false); // Stop loading after 10 seconds
+        }, 10000); // 10 seconds delay
         if (!tonConnectUI.connected) {
             router.push("/dashboard");
             toast.error("Connect Wallet First");
@@ -142,14 +165,17 @@ export default function Tasks() {
         }
         setIsLoading(true);
         try {
+            // Simulate a 10-second delay before completing the task
+            await new Promise((resolve) => setTimeout(resolve, 10000));
 
+            // Proceed with wallet connection and task completion after 10 seconds
             const response = await fetch("/api/complete-task", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    userId: String(user?.telegramId), 
-                    taskId: "G07f1f77bcf86cd799439002", 
-                    points: 5000 
+                    userId: String(user?.telegramId),
+                    taskId: "G07f1f77bcf86cd799439002",
+                    points: 5000
                 }),
             });
 
@@ -178,6 +204,10 @@ export default function Tasks() {
     }, [tonConnectUI, router, user]);
 
     const handleTonTransaction = useCallback(async () => {
+        setLoading(true); // Start loading
+        setTimeout(() => {
+            setLoading(false); // Stop loading after 10 seconds
+        }, 10000); // 10 seconds delay
         if (!tonConnectUI.connected) {
             router.push("/dashboard");
             toast.error("Connect Wallet First");
@@ -186,6 +216,10 @@ export default function Tasks() {
 
         setIsLoading(true);
         try {
+            // Simulate a 10-second delay before completing the transaction
+            await new Promise((resolve) => setTimeout(resolve, 10000));
+
+            // Proceed with the TON transaction after 10 seconds
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now() / 1000) + 60,
                 messages: [
@@ -209,11 +243,7 @@ export default function Tasks() {
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || "Failed to add points.");
 
-            setUser((prevUser) => ({
-                ...prevUser!,
-                points: (prevUser?.points || 0) + 100000,
-            }));
-            toast.success("Transaction successful! 100,000 Peaks added 🎉");
+            toast.success("Transaction successful! 20,000 Perks added 🎉");
         } catch (error: any) {
             console.error("Transaction failed:", error);
             toast.error(error.message || "Transaction failed. Please try again.");
@@ -221,6 +251,7 @@ export default function Tasks() {
             setIsLoading(false);
         }
     }, [tonConnectUI, router, user]);
+
 
     const taskData = {
         limited: [
@@ -263,8 +294,8 @@ export default function Tasks() {
             {
                 id: "G07f1f77bcf86cd799439003",
                 icon: <BsTwitterX size={"1.5rem"} />,
-                title: "Follow on Twitter", 
-                reward: 2000 , 
+                title: "Follow on Twitter",
+                reward: 2000,
                 onClick: handleJoinPartnerTask("G07f1f77bcf86cd799439003", 2000, "PERKS Twitter", "https://x.com/perkscommunity")
             },
             {
@@ -273,7 +304,7 @@ export default function Tasks() {
                 title: "Refer 10 Friends",
                 reward: 5000,
                 status: "1/1",
-                onClick: handleReferTask, 
+                onClick: handleReferTask,
                 bg: "bg-green-500"
             },
         ],
@@ -330,7 +361,7 @@ export default function Tasks() {
                         <ScrollArea className="h-[50dvh]">
                             {taskData.limited.map((task, index) => (
                                 <div key={task.id || index}>
-                                    <TaskCard task={task} completedTasks={completedTasks} />
+                                    <TaskCard task={task} completedTasks={completedTasks} taskLoading={loadingTasks[task.id]} />
                                     {index !== taskData.limited.length - 1 && <Separator />}
                                 </div>
                             ))}
@@ -342,7 +373,7 @@ export default function Tasks() {
                         <ScrollArea className="h-[50dvh]">
                             {taskData.partner.map((task, index) => (
                                 <div key={task.id || index}>
-                                    <TaskCard task={task} completedTasks={completedTasks} />
+                                    <TaskCard task={task} completedTasks={completedTasks} taskLoading={loadingTasks[task.id]} />
                                     {index !== taskData.partner.length - 1 && <Separator />}
                                 </div>
                             ))}
@@ -354,7 +385,7 @@ export default function Tasks() {
                         <ScrollArea className="h-[50dvh]">
                             {taskData.InGame.map((task, index) => (
                                 <div key={task.id || index}>
-                                    <TaskCard task={task} completedTasks={completedTasks} />
+                                    <TaskCard task={task} completedTasks={completedTasks} taskLoading={loadingTasks[task.id]} />
                                     {index !== taskData.InGame.length - 1 && <Separator />}
                                 </div>
                             ))}

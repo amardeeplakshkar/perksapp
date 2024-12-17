@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card } from './ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
-import { FaAward, FaCheck, FaCrown } from 'react-icons/fa';
+import { FaAward, FaCheck, FaCrown, FaSpinner } from 'react-icons/fa';
 
 interface TaskCardProps {
   task: {
@@ -18,10 +18,11 @@ interface TaskCardProps {
     gradient?: string;
     img?: boolean;
   };
+  taskLoading?: boolean;
   completedTasks: Record<string, boolean>;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, completedTasks }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, completedTasks, taskLoading }) => {
   const [timeLeft, setTimeLeft] = useState<string>("");
 
   useEffect(() => {
@@ -105,7 +106,13 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, completedTasks }) => {
           <div className="text-xs">{timeLeft}</div>
         </div>
       ) : (
-        <Button onClick={task.onClick} className="rounded-full text-[.65rem] h-7  font-semibold">Start</Button>
+        <Button
+          onClick={task.onClick}
+          className="rounded-full text-[.65rem] h-7 font-semibold"
+          disabled={taskLoading}
+        >
+          {taskLoading ? <FaSpinner className="animate-spin" size={16} /> : "Start"}
+        </Button>
       )}
     </Card>
   );
