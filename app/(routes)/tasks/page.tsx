@@ -95,22 +95,10 @@ export default function Tasks() {
     };
 
     const handleJoinPartnerTask = (taskId: string, taskReward: number, taskTitle: string, taskPath: string) => async () => {
-        // Show loading button state
-        setLoadingTasks((prev) => ({ ...prev, [taskId]: true }));
-        setAnyLoading(true);
-        setLoading(true); // Start loading
-        setTimeout(() => {
-            setLoading(false); // Stop loading after 10 seconds
-        }, 10000); // 10 seconds delay
-
-        try {
-            // Simulate a 10-second delay before completing the task
-            await new Promise((resolve) => setTimeout(resolve, 10000));
-
-            // Proceed with the task completion logic after 10 seconds
+      
+        try {           
             window.open(taskPath, "_blank");
 
-            // Check if user is defined
             if (!user) {
                 console.error("User is not defined");
                 return;
@@ -154,19 +142,15 @@ export default function Tasks() {
     };
 
     const handleWalletConnectTask = useCallback(async () => {
-        setLoading(true); // Start loading
-        setTimeout(() => {
-            setLoading(false); // Stop loading after 10 seconds
-        }, 10000); // 10 seconds delay
+        
         if (!tonConnectUI.connected) {
             router.push("/dashboard");
             toast.error("Connect Wallet First");
             return;
         }
-        setIsLoading(true);
+        
         try {
-            // Simulate a 10-second delay before completing the task
-            await new Promise((resolve) => setTimeout(resolve, 10000));
+         
 
             // Proceed with wallet connection and task completion after 10 seconds
             const response = await fetch("/api/complete-task", {
@@ -204,21 +188,16 @@ export default function Tasks() {
     }, [tonConnectUI, router, user]);
 
     const handleTonTransaction = useCallback(async () => {
-        setLoading(true); // Start loading
-        setTimeout(() => {
-            setLoading(false); // Stop loading after 10 seconds
-        }, 10000); // 10 seconds delay
+        
         if (!tonConnectUI.connected) {
             router.push("/dashboard");
             toast.error("Connect Wallet First");
             return;
         }
 
-        setIsLoading(true);
+      
         try {
-            // Simulate a 10-second delay before completing the transaction
-            await new Promise((resolve) => setTimeout(resolve, 10000));
-
+         
             // Proceed with the TON transaction after 10 seconds
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now() / 1000) + 60,
