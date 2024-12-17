@@ -10,11 +10,6 @@ if (!token) throw new Error('TELEGRAM_BOT_TOKEN environment variable not found.'
 
 const bot = new Bot(token);
 
-// Handle messages
-bot.on('message:text', async (ctx) => {
-  await ctx.reply(ctx.message.text);
-});
-
 const paidUsers = new Map();
 
 bot.command('start', (ctx) =>
