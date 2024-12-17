@@ -15,7 +15,7 @@ const Leaderboard = () => {
   const [topUsers, setTopUsers] = useState([]);
   const [loadingTopUsers, setLoadingTopUsers] = useState(true);
   const [error, setError] = useState(null);
-  const {photoUrl} = useUserData();
+  const { photoUrl } = useUserData();
 
   useEffect(() => {
     const fetchTopUsers = async () => {
@@ -48,9 +48,9 @@ const Leaderboard = () => {
             <div className="p-4 py-2 flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Avatar className='rounded-xl'>
-                  <AvatarImage src={photoUrl}/>
+                  <AvatarImage src={photoUrl} />
                   <AvatarFallback className='rounded-xl p-3 border-foreground bg-black'>
-                    <FaAward/>
+                    <FaAward />
                   </AvatarFallback>
                 </Avatar>
                 <UserCard />
@@ -78,8 +78,13 @@ const Leaderboard = () => {
                   <div key={index} className="border-gray-500/30">
                     <div className="p-4 flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className="rounded-[.3rem] p-2 border-foreground bg-white">
-                          <FaAward fill="black" />
+                        <div className="">
+                          <Avatar className='rounded-xl'>
+                            <AvatarImage src={user?.photoUrl} />
+                            <AvatarFallback className='border-foreground bg-white rounded-xl'>
+                              <FaAward fill='black'/>
+                            </AvatarFallback>
+                          </Avatar>
                         </div>
                         <div>
                           <h3 className="text-base font-semibold">{user.firstName || user.username}</h3>

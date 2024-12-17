@@ -4,7 +4,6 @@ import React from 'react';
 import { Card } from './ui/card';
 import { ScrollArea } from './ui/scroll-area';
 import { Avatar, AvatarFallback } from './ui/avatar';
-import { useUserData } from './hooks/useUserData';
 
 interface Referral {
   username: string;
@@ -18,25 +17,6 @@ interface ReferralListProps {
 }
 
 const ReferralList: React.FC<ReferralListProps> = ({ referrals }) => {
-  const { userData } = useUserData()
-
-  let multiplier = 1;
-  if (userData?.perkLevel) {
-    switch (userData.perkLevel) {
-      case "bronze":
-        multiplier = 2;
-        break;
-      case "silver":
-        multiplier = 3;
-        break;
-      case "gold":
-        multiplier = 4;
-        break;
-      case "diamond":
-        multiplier = 5;
-        break;
-    }
-  }
   return (
     <Card className="p-4">
       <h3 className="text-lg font-semibold mb-4">Referred Users</h3>
@@ -68,11 +48,7 @@ const ReferralList: React.FC<ReferralListProps> = ({ referrals }) => {
                   </div>
                 </div>
                 <>
-                  {userData && (
-                    <>
-                    { 500 * multiplier}
-                    </>
-                  )}
+                  500
                 </>
               </div>
             ))}

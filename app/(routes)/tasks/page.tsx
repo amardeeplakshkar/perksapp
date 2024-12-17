@@ -141,7 +141,7 @@ export default function Tasks() {
 
     const handleReferTask = (taskId: string, taskReward: number, referCount: number) => async () => {
 
-        if (userData.referrals.length !== referCount) {
+        if (userData.referrals.length < referCount) {
             router.push("/friends");
             toast.error(`Minimum ${referCount} Referrals are required`);
             return;

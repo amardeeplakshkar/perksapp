@@ -44,6 +44,7 @@ export async function GET(req) {
       username: user.username,
       firstName: user.firstName,
       lastName: user.lastName,
+      photoUrl: user.photoUrl,
       points: user.points,
       hasClaimedWelcomePoints: user.hasClaimedWelcomePoints,
       dailyPlays: user.dailyPlays,
@@ -94,6 +95,7 @@ export async function POST(req) {
           username: userData.username || "",
           firstName: userData.first_name || "",
           lastName: userData.last_name || "",
+          photoUrl: userData.photoUrl || "",
           points: 0,
           hasClaimedWelcomePoints: false,
           dailyPlays: 0,
@@ -131,6 +133,11 @@ export async function POST(req) {
           });
         }
       }
+    } else if (userData.photoUrl) {
+      user = await prisma.user.update({
+        where: { telegramId: userData.id },
+        data: { photoUrl: userData.photoUrl },
+      });
     }
 
     // Ensure taskCompletions is defined and is an array
@@ -143,6 +150,7 @@ export async function POST(req) {
       username: user.username,
       firstName: user.firstName,
       lastName: user.lastName,
+      photoUrl: user.photoUrl,
       points: user.points,
       hasClaimedWelcomePoints: user.hasClaimedWelcomePoints,
       dailyPlays: user.dailyPlays,

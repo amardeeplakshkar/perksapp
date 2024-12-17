@@ -14,6 +14,7 @@ export async function GET(req) {
         username: true,
         firstName: true,
         points: true,
+        // photoUrl: true
       },
     });
 

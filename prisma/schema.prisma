@@ -32,6 +32,7 @@ model User {
   isWalletConnected      Boolean          @default(false)
   transactions           Transaction[]
   taskCompletions        TaskCompletion[] // Relation to track task completions
+photoUrl                   String?
 
   // Referrals
   referrals               User[]           @relation("UserReferrals")

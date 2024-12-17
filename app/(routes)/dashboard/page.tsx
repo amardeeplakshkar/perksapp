@@ -19,7 +19,6 @@ const Dashboard: React.FC = () => {
   const [initData, setInitData] = useState('');
   const [userId, setUserId] = useState('');
   const [startParam, setStartParam] = useState('');
-const perkLevel  = "diamond"
   // Initialize WebApp and referral system
   useEffect(() => {
     const initWebApp = async () => {
