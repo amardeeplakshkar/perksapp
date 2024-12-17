@@ -61,7 +61,10 @@ const Page = () => {
     
             if (data.success) {
                 const link = data.link;
-                webApp.openInvoice(link); 
+                webApp.openInvoice(link , (status) => {
+                    if (status === "paid")
+                        webApp.showAlert("paid sucessfully");
+                }); 
             } else {
                 toast.error(`Failed to create invoice: ${data.error}`);
             }
@@ -72,7 +75,6 @@ const Page = () => {
     
         setLoading(false);
     };
-    
 
     return (
         <>

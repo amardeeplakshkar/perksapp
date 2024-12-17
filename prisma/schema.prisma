@@ -12,6 +12,7 @@ enum PerkLevel {
   diamond
   silver
   bronze
+  none
 }
 
 model User {
@@ -37,7 +38,7 @@ model User {
   referredBy User? @relation("UserReferrals", fields: [referredByTelegramId], references: [telegramId], onDelete: NoAction, onUpdate: NoAction)
   referredByTelegramId    Int?             // Store referrer’s telegramId
 
-  perkLevel              PerkLevel
+  perkLevel               PerkLevel        @default(none)
 }
 
 model Task {
