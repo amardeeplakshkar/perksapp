@@ -84,7 +84,6 @@ export default function Tasks() {
     };
 
     const handleJoinPartnerTask = (taskId: string, taskReward: number, taskTitle: string, taskPath: string) => async () => {
-        // Open the relevant partner channel link in a new tab
         window.open(taskPath, "_blank");
 
         // Check if user is defined
@@ -312,7 +311,7 @@ export default function Tasks() {
                 title: "Join Du Rove's Channel",
                 reward: 1000,
                 path: "https://t.me/durov",
-                onClick: handleJoinPartnerTask("P07f1f77bcf86cd799439204", 1000, "Join Du Rove's Channel", "https://t.me/blumcrypto"),
+                onClick: handleJoinPartnerTask("P07f1f77bcf86cd799439204", 1000, "Join Du Rove's Channel", "https://t.me/durov"),
             },
         ]
     };
