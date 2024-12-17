@@ -14,10 +14,8 @@ export function RainbowButton({
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (disabled) {
-      // If the button is disabled, show a toast
       toast.error("You already got this level!");
     } else {
-      // If the button is not disabled, call the onClick handler
       onClick?.(e);
     }
   };

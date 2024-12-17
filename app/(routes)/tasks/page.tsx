@@ -42,23 +42,45 @@ export default function Tasks() {
     const [anyLoading, setAnyLoading] = useState(false);
 
 
-    useEffect(() => {
-        const initWebApp = async () => {
-            if (typeof window !== 'undefined') {
-                const WebApp = (await import('@twa-dev/sdk')).default;
-                WebApp.ready();
-                const userId = WebApp.initDataUnsafe.user?.id.toString() || '';
-                setUserId(userId);
-
-                // Fetch completed tasks
-                if (userId) {
-                    fetchCompletedTasks(userId);
-                }
+    const fetchUserData = async () => {
+        if (window.Telegram?.WebApp) {
+          const tg = window.Telegram.WebApp;
+          tg.ready();
+    
+          const initDataUnsafe: InitDataUnsafe = tg.initDataUnsafe || {};
+          if (initDataUnsafe.user) {
+            try {
+              const response = await fetch("/api/user", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(initDataUnsafe.user),
+              });
+    
+              if (!response.ok) {
+                throw new Error("Failed to fetch user data.");
+              }
+    
+              const data = await response.json();
+              setUser(data);
+              setUserId(user.telegramId)
+              setCompletedTasks(
+                data.completedTaskIds.reduce((acc, taskId) => {
+                  acc[taskId] = true;
+                  return acc;
+                }, {})
+              );
+            } catch (err: any) {
+              console.error("Failed to fetch user data:", err.message);
+              toast.error(err.message || "Failed to fetch user data.");
             }
-        };
-
-        initWebApp();
-    }, []);
+          }
+        }
+        setLoading(false);
+      };
+    
+      useEffect(() => {
+        fetchUserData();
+      }, []);
 
     const fetchCompletedTasks = async (userId: string) => {
         try {
@@ -76,14 +98,10 @@ export default function Tasks() {
         }
     };
 
-    const handleTaskComplete = () => {
-        fetchCompletedTasks(userId);
-    };
-
-
     const handleReferTask = () => {
         router.push("/friends")
     };
+    
     const handleJoinPartnerTask = (taskId: string, taskReward: number, taskTitle: string, taskPath: string) => async () => {
         // Open the relevant partner channel link in a new tab
         window.open(taskPath, "_blank");
