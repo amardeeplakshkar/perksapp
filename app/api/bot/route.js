@@ -15,7 +15,7 @@ bot.on('pre_checkout_query', (ctx) => {
   });
 });
 
-bot.on('successful_payment', async (ctx) => {
+bot.on('message:successful_payment', async (ctx) => {
   const payload = ctx.message.successful_payment.invoice_payload;
   const candidate = payload.replace('buy_', '').replace('_payload', '');
 
