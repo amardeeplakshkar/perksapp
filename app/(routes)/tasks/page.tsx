@@ -25,6 +25,7 @@ interface User {
     firstName: string;
     completedTaskIds: string[];
     points?: number;
+    photo_url: string
 }
 
 interface InitDataUnsafe {

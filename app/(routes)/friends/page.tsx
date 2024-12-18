@@ -66,7 +66,7 @@ const FriendsPage = () => {
 
   return (
     <div className="flex flex-col h-[88dvh]">
-      <div className="p-4 flex-1">
+      <div className="pt-4 flex-1">
         <LogoHeader header='Friends' icon='DuckRefer' about='refer friends and earn more perks '/>
         {userId ? (
           <>
