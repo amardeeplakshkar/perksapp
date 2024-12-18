@@ -15,6 +15,7 @@ import { FaAward, FaLink, FaTelegramPlane, FaTwitter, FaWallet } from 'react-ico
 import { BsPeopleFill, BsTwitterX } from 'react-icons/bs';
 import DynamicSVGIcon from 'components/icon';
 import { useUserData } from 'components/hooks/useUserData';
+import Loader from 'components/Loader';
 
 
 const recipient = process.env.NEXT_PUBLIC_TON_WALLET_ADDRESS;
@@ -92,6 +93,79 @@ export default function Tasks() {
     useEffect(() => {
         fetchUserData();
     }, []);
+
+    const handleMembershipTask = (taskId: string, taskReward: number, taskTitle: string, taskPath: string) => async () => {
+        window.open(taskPath, "_blank");
+    
+        if (!user?.telegramId) {
+            alert('This app can only be used within Telegram');
+            return;
+        }
+    
+        setIsLoading(true);
+    
+        try {
+            // Check if the user is a member of the channel
+            const membershipResponse = await fetch('/api/check-membership', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    telegramId: user.telegramId,
+                    channelUsername: `@perkscommunity`,
+                }),
+            });
+    
+            if (!membershipResponse.ok) {
+                const errorData = await membershipResponse.json();
+                throw new Error(errorData.error || 'Failed to check membership');
+            }
+    
+            const membershipData = await membershipResponse.json();
+            if (!membershipData.isMember) {
+                toast.error('You are not a member of the channel. Please join the channel to complete the task.');
+                return;
+            }
+    
+            // User is a member, proceed with completing the task
+            const taskResponse = await fetch("/api/complete-task", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: String(user.telegramId),
+                    taskId: taskId,
+                    points: taskReward,
+                }),
+            });
+    
+            const taskData = await taskResponse.json();
+    
+            if (!taskResponse.ok) {
+                throw new Error(taskData.error || "Failed to complete task.");
+            }
+    
+            // Update the user points
+            setUser((prevUser) => ({
+                ...prevUser!,
+                points: (prevUser?.points || 0) + taskReward,
+            }));
+    
+            // Mark the task as completed
+            setCompletedTasks((prev) => ({
+                ...prev,
+                [taskId]: true,
+            }));
+    
+            toast.success(`${taskTitle} task completed and points added successfully! 🎉`);
+        } catch (error: any) {
+            console.error('Error handling membership task:', error);
+            toast.error(error.message || 'Something went wrong. Please try again.');
+        } finally {
+            setIsLoading(false);
+            setLoadingTasks((prev) => ({ ...prev, [taskId]: false }));
+            setAnyLoading(false);
+        }
+    };
+    
 
     const handleJoinPartnerTask = (taskId: string, taskReward: number, taskTitle: string, taskPath: string) => async () => {
 
@@ -337,6 +411,9 @@ export default function Tasks() {
         }
     }, [tonConnectUI, router, user]);
 
+    if (loading) {
+        return <Loader/>;
+      }
 
     const taskData = {
         limited: [
@@ -372,12 +449,12 @@ export default function Tasks() {
         ],
         InGame: [
             {
-                id: "G07f1f77bcf86cd799439001",
+                id: "MEMf1f77bcf86cd799439001",
                 icon: <FaTelegramPlane size={"1.5rem"} />,
                 title: "PERKS Community",
                 reward: 5000,
                 bg: "bg-blue-500",
-                onClick: handleJoinPartnerTask("G07f1f77bcf86cd799439001", 5000, "PERKS Community", "https://t.me/perkscommunity"),
+                onClick: handleMembershipTask("MEMf1f77bcf86cd799439001", 5000, "PERKS Community", "https://t.me/perkscommunity"),
             },
             {
                 id: "G07f1f77bcf86cd799439002",

@@ -93,8 +93,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, completedTasks, taskLoading }
           }
         </Avatar>
         <div>
-          <h3 className="font-semibold text-lg capitalize">{task.title}</h3>
-          <p className="text-sm text-muted-foreground">
+          <h3 className="font-semibold text-sm capitalize">{task.title}</h3>
+          <p className="text-xs text-muted-foreground">
             {
               typeof task.reward === "string" ? task.reward :
                 <>

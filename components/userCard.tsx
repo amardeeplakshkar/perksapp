@@ -8,8 +8,8 @@ const UserCard = () => {
     return (
         <div>
             <h3 className=" text-base font-semibold">{userData?.firstName ? userData?.firstName : <Skeleton className='h-4 w-20 -ml-1' />}</h3>
-            <p className="">
-                {userData?.points ? userData.points.toLocaleString()
+            <p className="text-sm">
+                {userData?.points ? `${userData.points.toLocaleString()} PERKS`
                     : <Skeleton className='h-4 w-10 -ml-1 mt-1' />}
             </p>
         </div>

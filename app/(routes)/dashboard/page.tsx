@@ -11,6 +11,7 @@ import { toast } from 'react-hot-toast';
 import Perks from 'components/Perks';
 import ShinyButton from 'components/ui/shiny-button';
 import { useUserData } from 'components/hooks/useUserData';
+import Loader from 'components/Loader';
 
 const Dashboard: React.FC = () => {
   const [user, setUser] = useState(null);
@@ -128,7 +129,7 @@ const Dashboard: React.FC = () => {
   }, [router]);
 
   if (loading) {
-    return;
+    return <Loader/>;
   }
   return (
     <>
