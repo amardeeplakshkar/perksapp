@@ -25,6 +25,7 @@ export async function GET(req) {
             firstName: true,
             lastName: true,
             createdAt: true,
+            photo_url: true
           },
         },
       },
@@ -44,7 +45,7 @@ export async function GET(req) {
       username: user.username,
       firstName: user.firstName,
       lastName: user.lastName,
-      photoUrl: user.photoUrl,
+      photo_url: user.photo_url,
       points: user.points,
       hasClaimedWelcomePoints: user.hasClaimedWelcomePoints,
       dailyPlays: user.dailyPlays,
@@ -55,6 +56,7 @@ export async function GET(req) {
         firstName: referral.firstName,
         lastName: referral.lastName,
         joinedAt: referral.createdAt,
+        photo_url: referral.photo_url
       })),
       completedTaskIds,
       perkLevel: user.perkLevel, // Include perkLevel
@@ -95,7 +97,7 @@ export async function POST(req) {
           username: userData.username || "",
           firstName: userData.first_name || "",
           lastName: userData.last_name || "",
-          photoUrl: userData.photoUrl || "",
+          photo_url: userData.photo_url || "",
           points: 0,
           hasClaimedWelcomePoints: false,
           dailyPlays: 0,
@@ -133,10 +135,10 @@ export async function POST(req) {
           });
         }
       }
-    } else if (userData.photoUrl) {
+    } else if (userData.photo_url) {
       user = await prisma.user.update({
         where: { telegramId: userData.id },
-        data: { photoUrl: userData.photoUrl },
+        data: { photo_url: userData.photo_url },
       });
     }
 
@@ -150,7 +152,7 @@ export async function POST(req) {
       username: user.username,
       firstName: user.firstName,
       lastName: user.lastName,
-      photoUrl: user.photoUrl,
+      photo_url: user.photo_url,
       points: user.points,
       hasClaimedWelcomePoints: user.hasClaimedWelcomePoints,
       dailyPlays: user.dailyPlays,

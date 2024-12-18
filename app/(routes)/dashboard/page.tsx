@@ -10,6 +10,7 @@ import { FaAward } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import Perks from 'components/Perks';
 import ShinyButton from 'components/ui/shiny-button';
+import { useUserData } from 'components/hooks/useUserData';
 
 const Dashboard: React.FC = () => {
   const [user, setUser] = useState(null);
@@ -19,7 +20,7 @@ const Dashboard: React.FC = () => {
   const [initData, setInitData] = useState('');
   const [userId, setUserId] = useState('');
   const [startParam, setStartParam] = useState('');
-  // Initialize WebApp and referral system
+  const { userData, photoUrl } = useUserData();
   useEffect(() => {
     const initWebApp = async () => {
       if (typeof window !== 'undefined') {
@@ -69,8 +70,8 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      if (typeof window !== "undefined" && window.Telegram?.WebApp) {
-        const tg = window.Telegram.WebApp;
+      if (typeof window !== 'undefined') {
+        const tg = (await import('@twa-dev/sdk')).default;
         tg.ready();
 
         const initDataUnsafe = tg.initDataUnsafe || { user };
@@ -80,7 +81,10 @@ const Dashboard: React.FC = () => {
             const response = await fetch("/api/user", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(initDataUnsafe.user),
+              body: JSON.stringify({
+                ...initDataUnsafe.user,
+                photo_url: photoUrl,
+              }),
             });
 
             const data = await response.json();
@@ -98,7 +102,6 @@ const Dashboard: React.FC = () => {
             setError(errorMsg);
             toast.error(errorMsg); // Show toast for fetch error
             if (err.message === "Internal server error") {
-              tg.close(); // Close the mini app on internal server error
             }
           } finally {
             setLoading(false);
@@ -126,10 +129,6 @@ const Dashboard: React.FC = () => {
     return;
   }
 
-  // if (error)
-  // {
-  //   return <div className="p-4 mx-auto text-red-500">{error}</div>;
-  // }
   return (
     <>
       <div className='flex flex-col items-center h-[82vh] space-y-4'>
@@ -158,16 +157,16 @@ const Dashboard: React.FC = () => {
             >
               <span
                 className={`${user?.perkLevel === "none"
-                    ? "text-white/90"
-                    : user?.perkLevel === "diamond"
-                      ? "text-diamond-500/90"
-                      : user?.perkLevel === "gold"
-                        ? "text-gold-500/90"
-                        : user?.perkLevel === "silver"
-                          ? "text-silver-500/90"
-                          : user?.perkLevel === "bronze"
-                            ? "text-bronze-500/90"
-                            : "text-white/90"
+                  ? "text-white/90"
+                  : user?.perkLevel === "diamond"
+                    ? "text-diamond-500/90"
+                    : user?.perkLevel === "gold"
+                      ? "text-gold-500/90"
+                      : user?.perkLevel === "silver"
+                        ? "text-silver-500/90"
+                        : user?.perkLevel === "bronze"
+                          ? "text-bronze-500/90"
+                          : "text-white/90"
                   } flex justify-center items-center`}
               >
                 {
@@ -183,7 +182,7 @@ const Dashboard: React.FC = () => {
                             ? "Bronze Perk"
                             : "Unknown Perk"
                 }
-              <ChevronRight size={"1rem"} />
+                <ChevronRight size={"1rem"} />
               </span>
             </ShinyButton>
           </div>

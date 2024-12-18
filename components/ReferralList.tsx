@@ -3,13 +3,14 @@
 import React from 'react';
 import { Card } from './ui/card';
 import { ScrollArea } from './ui/scroll-area';
-import { Avatar, AvatarFallback } from './ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 interface Referral {
   username: string;
   firstName: string;
   lastName: string;
   joinedAt?: Date;
+  photo_url?: string
 }
 
 interface ReferralListProps {
@@ -32,6 +33,7 @@ const ReferralList: React.FC<ReferralListProps> = ({ referrals }) => {
               >
                 <div className='flex justify-center items-center gap-4'>
                   <Avatar >
+                    <AvatarImage src={referral.photo_url}/>
                     <AvatarFallback className='bg-red-500/70'>
                       {referral.username?.[0] || `${referral.firstName?.[0] || ''}${referral.lastName?.[0] || ''}`.trim()}
                     </AvatarFallback>

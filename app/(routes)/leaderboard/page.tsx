@@ -1,8 +1,9 @@
 "use client"
 
+import { useEffect, useState } from 'react';
 import { Card } from '../../../components/ui/card';
 import { ScrollArea } from '../../../components/ui/scroll-area';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { FaAward, FaCrown } from 'react-icons/fa';
 import { Separator } from 'components/ui/separator';
 import UserCard from 'components/userCard';
@@ -17,24 +18,45 @@ const Leaderboard = () => {
   const [error, setError] = useState(null);
   const { photoUrl } = useUserData();
 
+  
+  const fetchTopUsers = async () => {
+    try {
+      const response = await fetch("/api/leaderboard");
+      if (!response.ok) throw new Error("Failed to fetch top users");
+
+      const data = await response.json();
+      setTopUsers(data);
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    } finally {
+      setLoadingTopUsers(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchTopUsers = async () => {
-      try {
-        const response = await fetch("/api/leaderboard");
-        if (!response.ok) throw new Error("Failed to fetch top users");
+    fetchTopUsers(); 
 
-        const data = await response.json();
-        setTopUsers(data);
-      } catch (err) {
-        console.error(err);
-        setError(err.message);
-      } finally {
-        setLoadingTopUsers(false);
-      }
-    };
+    const intervalId = setInterval(() => {
+      fetchTopUsers();
+    }, 600000); 
 
-    fetchTopUsers();
+    
+    return () => clearInterval(intervalId);
   }, []);
+
+  const getBackgroundClass = (medalEmoji) => {
+    switch (medalEmoji) {
+      case "🥇":
+        return "bg-gold-500/15";
+      case "🥈":
+        return "bg-silver-500/15";
+      case "🥉":
+        return "bg-bronze-500/15";
+      default:
+        return ""; 
+    }
+  };
 
   if (loadingTopUsers) return <Loader />;
   if (error) return <div className="mx-auto p-4 text-red-500">{error}</div>;
@@ -65,7 +87,6 @@ const Leaderboard = () => {
               {topUsers.map((user, index) => {
                 const position = topUsers.length + index - 9;
                 const isMedal = position <= 3;
-
                 const medalEmoji = isMedal
                   ? position === 1
                     ? '🥇'
@@ -74,15 +95,17 @@ const Leaderboard = () => {
                       : '🥉'
                   : null;
 
+                const backgroundClass = getBackgroundClass(medalEmoji);
+
                 return (
                   <div key={index} className="border-gray-500/30">
-                    <div className="p-4 flex items-center justify-between">
+                    <div className={`p-4 flex items-center justify-between ${backgroundClass}`}>
                       <div className="flex items-center gap-4">
                         <div className="">
                           <Avatar className='rounded-xl'>
-                            <AvatarImage src={user?.photoUrl} />
+                            <AvatarImage src={user?.photo_url} />
                             <AvatarFallback className='border-foreground bg-white rounded-xl'>
-                              <FaAward fill='black'/>
+                              <FaAward fill='black' />
                             </AvatarFallback>
                           </Avatar>
                         </div>
