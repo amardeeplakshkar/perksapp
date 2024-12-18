@@ -31,8 +31,7 @@ model User {
   walletAddress          String?          // Store connected TON wallet address
   isWalletConnected      Boolean          @default(false)
   transactions           Transaction[]
-  taskCompletions        TaskCompletion[] // Relation to track task completions
-
+  taskCompletions        TaskCompletion[]
   // Referrals
   referrals               User[]           @relation("UserReferrals")
   referredBy User? @relation("UserReferrals", fields: [referredByTelegramId], references: [telegramId], onDelete: NoAction, onUpdate: NoAction)
