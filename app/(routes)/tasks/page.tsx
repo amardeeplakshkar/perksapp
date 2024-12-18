@@ -141,7 +141,7 @@ export default function Tasks() {
 
     const handleReferTask = (taskId: string, taskReward: number, referCount: number) => async () => {
 
-        if (userData.referrals.length < referCount) {
+        if (userData.referrals.length !== referCount) {
             router.push("/friends");
             toast.error(`Minimum ${referCount} Referrals are required`);
             return;
@@ -360,6 +360,14 @@ export default function Tasks() {
                 onClick: handleLevelTask,
                 status: "limited"
             },
+            // {
+            //     id: "L07f1f77bcf86cd799439002",
+            //     icon: <span className="scale-125 h-[25px] w-[25px] flex justify-center items-center">😳</span>,
+            //     title: "Mystery Quest",
+            //     reward: 10000,
+            //     status: "0/1",
+            //     bg: "bg-foreground/10",
+            // },
         ],
         InGame: [
             {
