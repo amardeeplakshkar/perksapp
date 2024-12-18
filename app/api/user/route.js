@@ -46,6 +46,7 @@ export async function GET(req) {
       firstName: user.firstName,
       lastName: user.lastName,
       photoUrl: user.photoUrl,
+      photoUrl: user.photoUrl,
       points: user.points,
       hasClaimedWelcomePoints: user.hasClaimedWelcomePoints,
       dailyPlays: user.dailyPlays,
