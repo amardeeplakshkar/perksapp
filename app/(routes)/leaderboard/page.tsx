@@ -78,7 +78,7 @@ const Leaderboard = () => {
                   <div key={index} className="border-gray-500/30">
                     <div className="p-4 flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className="">
+                        <div>
                           <Avatar className='rounded-xl'>
                             <AvatarImage src={user?.photoUrl} />
                             <AvatarFallback className='border-foreground bg-white rounded-xl'>

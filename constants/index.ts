@@ -14,11 +14,6 @@ export const FOOTER = [
         label: "Leaderboard",
         route: "/leaderboard"
     },
-    // {
-    //     icon: FaVoteYea,
-    //     label: "Vote",
-    //     route: "/vote"
-    // },
     {
         icon: FaAward,
         label: "PERKS",

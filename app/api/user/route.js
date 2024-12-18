@@ -25,6 +25,7 @@ export async function GET(req) {
             firstName: true,
             lastName: true,
             createdAt: true,
+            photoUrl: true
           },
         },
       },
@@ -44,6 +45,7 @@ export async function GET(req) {
       username: user.username,
       firstName: user.firstName,
       lastName: user.lastName,
+      photoUrl: user.photoUrl,
       points: user.points,
       hasClaimedWelcomePoints: user.hasClaimedWelcomePoints,
       dailyPlays: user.dailyPlays,
@@ -54,6 +56,7 @@ export async function GET(req) {
         firstName: referral.firstName,
         lastName: referral.lastName,
         joinedAt: referral.createdAt,
+        photoUrl: referral.photoUrl,
       })),
       completedTaskIds,
       perkLevel: user.perkLevel, // Include perkLevel

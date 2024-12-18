@@ -108,6 +108,7 @@ export async function GET(request: NextRequest) {
             firstName: true,
             lastName: true,
             createdAt: true,
+            photoUrl: true
           },
         },
       },
@@ -123,6 +124,7 @@ export async function GET(request: NextRequest) {
         firstName: referral.firstName,
         lastName: referral.lastName,
         joinedAt: referral.createdAt,
+        photoUrl: referral.photoUrl,
       })),
     });
   } catch (error) {
