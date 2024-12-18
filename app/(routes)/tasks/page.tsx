@@ -43,299 +43,144 @@ export default function Tasks() {
     const { userData } = useUserData()
     const [loadingTasks, setLoadingTasks] = useState<Record<string, boolean>>({});
 
-    const handleTaskStart = (taskId: string) => {
-        // Set the task as loading
-        setLoadingTasks((prev) => ({ ...prev, [taskId]: true }));
+// Utility function for API requests
+const apiRequest = async (endpoint: string, body: object) => {
+    try {
+        const response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+        });
+        const data = await response.json();
 
-        // Reset the loading state after 10 seconds
-        setTimeout(() => {
-            setLoadingTasks((prev) => ({ ...prev, [taskId]: false }));
-        }, 10000);
-    };
+        if (!response.ok) throw new Error(data.error || "API request failed.");
 
-    const fetchUserData = async () => {
-        if (window.Telegram?.WebApp) {
-            const tg = window.Telegram.WebApp;
-            tg.ready();
+        return data;
+    } catch (error: any) {
+        console.error("API Request Error:", error.message);
+        toast.error(error.message || "Something went wrong. Please try again.");
+        throw error; // Re-throw to handle in specific tasks if needed
+    }
+};
 
-            const initDataUnsafe: InitDataUnsafe = tg.initDataUnsafe || {};
-            if (initDataUnsafe.user) {
-                try {
-                    const response = await fetch("/api/user", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(initDataUnsafe.user),
-                    });
+// Optimized fetchUserData
+const fetchUserData = async () => {
+    if (window.Telegram?.WebApp) {
+        const tg = window.Telegram.WebApp;
+        tg.ready();
 
-                    if (!response.ok) {
-                        throw new Error("Failed to fetch user data.");
-                    }
-
-                    const data = await response.json();
-                    setUser(data);
-                    setCompletedTasks(
-                        data.completedTaskIds.reduce((acc, taskId) => {
-                            acc[taskId] = true;
-                            return acc;
-                        }, {})
-                    );
-                } catch (err: any) {
-                    console.error("Failed to fetch user data:", err.message);
-                    toast.error(err.message || "Failed to fetch user data.");
-                }
+        const initDataUnsafe: InitDataUnsafe = tg.initDataUnsafe || {};
+        if (initDataUnsafe.user) {
+            try {
+                const data = await apiRequest("/api/user", initDataUnsafe.user);
+                setUser(data);
+                setCompletedTasks(
+                    data.completedTaskIds.reduce((acc, taskId) => {
+                        acc[taskId] = true;
+                        return acc;
+                    }, {})
+                );
+            } catch (err) {
+                console.error("Failed to fetch user data.");
             }
         }
-        setLoading(false);
-    };
+    }
+    setLoading(false);
+};
 
-    useEffect(() => {
-        fetchUserData();
-    }, []);
+// Optimized task handlers
+const handleTask = async (taskId: string, taskReward: number, extraData: object = {}) => {
+    try {
+        const data = await apiRequest("/api/complete-task", {
+            userId: String(user?.telegramId),
+            taskId,
+            points: taskReward,
+            ...extraData,
+        });
 
-    const handleJoinPartnerTask = (taskId: string, taskReward: number, taskTitle: string, taskPath: string) => async () => {
+        setUser((prevUser) => ({
+            ...prevUser!,
+            points: (prevUser?.points || 0) + taskReward,
+        }));
 
-        try {
-            window.open(taskPath, "_blank");
+        setCompletedTasks((prev) => ({
+            ...prev,
+            [taskId]: true,
+        }));
 
-            if (!user) {
-                console.error("User is not defined");
-                return;
-            }
+        toast.success("Task completed and points added successfully! 🎉");
+    } catch (error) {
+        console.error(`Failed to complete task ${taskId}:`, error);
+    } finally {
+        setIsLoading(false);
+        setAnyLoading(false);
+    }
+};
 
-            // Call the API to complete the task and award points
-            const response = await fetch("/api/complete-task", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    userId: String(user?.telegramId),
-                    taskId: taskId, // Task ID for the partner task
-                    points: taskReward, // Points to be awarded for this task
-                }),
-            });
+// Example Usage in Task Handlers
+const handleJoinPartnerTask = (taskId: string, taskReward: number, taskTitle: string, taskPath: string) => async () => {
+    window.open(taskPath, "_blank");
+    await handleTask(taskId, taskReward);
+};
 
-            const data = await response.json();
+const handleReferTask = (taskId: string, taskReward: number, referCount: number) => async () => {
+    if (userData.referrals.length < referCount) {
+        router.push("/friends");
+        toast.error(`Minimum ${referCount} referrals are required.`);
+        return;
+    }
 
-            if (!response.ok) throw new Error(data.error || "Failed to complete partner task.");
+    await handleTask(taskId, taskReward);
+};
 
-            // Update the user points
-            setUser((prevUser) => ({
-                ...prevUser!,
-                points: (prevUser?.points || 0) + taskReward,
-            }));
+const handleLevelTask = async () => {
+    if (userData.perkLevel === "none") {
+        router.push("/shop");
+        toast.error("Upgrade to any level first!");
+        return;
+    }
 
-            // Mark the task as completed
-            setCompletedTasks((prev) => ({
-                ...prev,
-                [taskId]: true,
-            }));
+    await handleTask("L07f1f77bcf86cd799439003", 25000);
+};
 
-            toast.success(`${taskTitle} task completed and points added successfully! 🎉`);
-        } catch (error: any) {
-            console.error(`Failed to complete ${taskTitle} task:`, error);
-            toast.error(error.message || `Failed to complete ${taskTitle} task. Please try again.`);
-        } finally {
-            setLoadingTasks((prev) => ({ ...prev, [taskId]: false }));
-            setAnyLoading(false);
-        }
-    };
+const handleWalletConnectTask = useCallback(async () => {
+    if (!tonConnectUI.connected) {
+        router.push("/dashboard");
+        toast.error("Connect wallet first.");
+        return;
+    }
 
-    const handleReferTask = (taskId: string, taskReward: number, referCount: number) => async () => {
+    await handleTask("G07f1f77bcf86cd799439002", 5000);
+}, [tonConnectUI, router, user]);
 
-        if (userData.referrals.length < referCount) {
-            router.push("/friends");
-            toast.error(`Minimum ${referCount} Referrals are required`);
-            return;
-        }
+const handleTonTransaction = useCallback(async () => {
+    if (!tonConnectUI.connected) {
+        router.push("/dashboard");
+        toast.error("Connect wallet first.");
+        return;
+    }
 
-        try {
-            const response = await fetch("/api/complete-task", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    userId: String(user?.telegramId),
-                    taskId: taskId,
-                    points: taskReward
-                }),
-            });
+    try {
+        const originalValue = 0.5 * 1e9;
+        const discountPercentage = {
+            silver: 20,
+            gold: 30,
+            diamond: 50,
+        }[userData.perkLevel] || 0;
 
-            const data = await response.json();
+        const discountedValue = originalValue * (1 - discountPercentage / 100);
+        await tonConnectUI.sendTransaction({
+            validUntil: Math.floor(Date.now() / 1000) + 60,
+            messages: [{ address: recipient, amount: discountedValue.toString() }],
+        });
 
-            if (!response.ok) throw new Error(data.error || "Failed try again!");
-
-            setUser((prevUser) => ({
-                ...prevUser!,
-                points: (prevUser?.points || 0) + taskReward,
-            }));
-
-            // Mark the task as completed
-            setCompletedTasks((prev) => ({
-                ...prev,
-                [taskId]: true,
-            }));
-
-            toast.success(`Congratulations 🎉! To Hit ${referCount} Refers Milestone`);
-
-        } catch (error: any) {
-            console.error("Failed to complete:", error);
-            toast.error(error.message || "Failed to complete");
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleLevelTask = async () => {
-
-        if (userData.perkLevel === "none") {
-            router.push("/shop");
-            toast.error("Upgrade To Any Level First!");
-            return;
-        }
-
-        try {
-            const response = await fetch("/api/complete-task", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    userId: String(user?.telegramId),
-                    taskId: "L07f1f77bcf86cd799439003",
-                    points: 25000
-                }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) throw new Error(data.error || "Failed try again!");
-
-            setUser((prevUser) => ({
-                ...prevUser!,
-                points: (prevUser?.points || 0) + 25000
-            }));
-
-            setCompletedTasks((prev) => ({
-                ...prev,
-                "L07f1f77bcf86cd799439003": true,
-            }));
-
-            toast.success("Level Upgraded and points added successfully! 🎉");
-
-        } catch (error: any) {
-            console.error("Failed to complete:", error);
-            toast.error(error.message || "Failed to complete");
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleWalletConnectTask = useCallback(async () => {
-
-        if (!tonConnectUI.connected) {
-            router.push("/dashboard");
-            toast.error("Connect Wallet First");
-            return;
-        }
-
-        try {
-            const response = await fetch("/api/complete-task", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    userId: String(user?.telegramId),
-                    taskId: "G07f1f77bcf86cd799439002",
-                    points: 5000
-                }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) throw new Error(data.error || "Failed to complete wallet connect task.");
-
-            setUser((prevUser) => ({
-                ...prevUser!,
-                points: (prevUser?.points || 0) + 5000
-            }));
-
-            setCompletedTasks((prev) => ({
-                ...prev,
-                "G07f1f77bcf86cd799439002": true,
-            }));
-
-            toast.success("Wallet connected and points added successfully! 🎉");
-
-        } catch (error: any) {
-            console.error("Failed to complete wallet connect task:", error);
-            toast.error(error.message || "Failed to complete wallet connect task. Please try again.");
-        } finally {
-            setIsLoading(false);
-        }
-    }, [tonConnectUI, router, user]);
-
-    const handleTonTransaction = useCallback(async () => {
-
-        if (!tonConnectUI.connected) {
-            router.push("/dashboard");
-            toast.error("Connect Wallet First");
-            return;
-        }
-
-        try {
-            const originalValue = 0.5 * 1e9; 
-
-            let discountPercentage = 0; 
-            switch (userData?.perkLevel) {
-                case "silver":
-                    discountPercentage = 20;
-                    break;
-                case "gold":
-                    discountPercentage = 30;
-                    break;
-                case "diamond":
-                    discountPercentage = 50;
-                    break;
-            }
-
-            const discountedValue = originalValue * (1 - discountPercentage / 100);
-            const discountedValueString = discountedValue.toString();
-        
-            await tonConnectUI.sendTransaction({
-                validUntil: Math.floor(Date.now() / 1000) + 60,
-                messages: [
-                    {
-                        address: recipient,
-                        amount: discountedValueString,
-                    },
-                ],
-            });
-
-            const response = await fetch("/api/complete-task", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    userId: String(user?.telegramId),
-                    taskId: 'M07f1f77bcf86cd799439001',
-                    points: 20000,
-                }),
-            });
-
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error || "Failed to add points.");
-            setUser((prevUser) => ({
-                ...prevUser!,
-                points: (prevUser?.points || 0) + 20000
-            }));
-
-            setCompletedTasks((prev) => ({
-                ...prev,
-                "M07f1f77bcf86cd799439001": true,
-            }));
-            toast.success("Transaction successful! 20,000 Perks added 🎉");
-        } catch (error: any) {
-            console.error("Transaction failed:", error);
-            toast.error(error.message || "Transaction failed. Please try again.");
-        } finally {
-            setIsLoading(false);
-        }
-    }, [tonConnectUI, router, user]);
-
+        await handleTask("M07f1f77bcf86cd799439001", 20000);
+        toast.success("Transaction successful! 20,000 perks added 🎉");
+    } catch (error) {
+        console.error("Transaction failed:", error);
+        toast.error("Transaction failed. Please try again.");
+    }
+}, [tonConnectUI, router, user]);
 
     const taskData = {
         limited: [
@@ -360,14 +205,6 @@ export default function Tasks() {
                 onClick: handleLevelTask,
                 status: "limited"
             },
-            // {
-            //     id: "L07f1f77bcf86cd799439002",
-            //     icon: <span className="scale-125 h-[25px] w-[25px] flex justify-center items-center">😳</span>,
-            //     title: "Mystery Quest",
-            //     reward: 10000,
-            //     status: "0/1",
-            //     bg: "bg-foreground/10",
-            // },
         ],
         InGame: [
             {

@@ -104,10 +104,11 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, completedTasks, taskLoading }
           </p>
         </div>
       </div>
-      {completedTasks[task.id] ?
-        typeof task.reward === "string" ? <FaCrown size={18} className="mr-4" /> :
-          <FaCheck size={18} className="mr-4" />
-        : task.status === "0/1" ? (
+      {
+        completedTasks[task.id] ? (
+          typeof task.reward === "string" ? <FaCrown size={18} className="mr-4" /> :
+            <FaCheck size={18} className="mr-4" />
+        ) : task.status === "0/1" ? (
           <div className="flex items-end flex-col gap-1">
             <div className="text-sm bg-foreground/10 p-1 px-2 rounded-full font-bold">0/1</div>
             <div className="text-xs">{timeLeft}</div>
@@ -127,14 +128,14 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, completedTasks, taskLoading }
           </Button>
         ) : task.status === "limited" ? (
           <div className="flex  items-center flex-col gap-1">
-          <Button
-            onClick={task.onClick}
-            className="rounded-full text-[.65rem] h-7 font-semibold hover:bg-blue-600 bg-blue-500 text-white"
-            disabled={taskLoading}
-          >
-            {taskLoading ? <FaSpinner className="animate-spin" size={16} /> : "Check"}
-          </Button>
-           <div className="text-xs">{timeLeft}</div>
+            <Button
+              onClick={task.onClick}
+              className="rounded-full text-[.65rem] h-7 font-semibold hover:bg-blue-600 bg-blue-500 text-white"
+              disabled={taskLoading}
+            >
+              {taskLoading ? <FaSpinner className="animate-spin" size={16} /> : "Check"}
+            </Button>
+            <div className="text-xs">{timeLeft}</div>
           </div>
         ) : (
           <Button
@@ -144,7 +145,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, completedTasks, taskLoading }
           >
             {taskLoading ? <FaSpinner className="animate-spin" size={16} /> : "Start"}
           </Button>
-        )}
+        )
+      }
     </Card>
   );
 };
