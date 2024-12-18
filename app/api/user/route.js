@@ -45,7 +45,7 @@ export async function GET(req) {
       username: user.username,
       firstName: user.firstName,
       lastName: user.lastName,
-      photo_url: user.photo_url,
+      photoUrl: user.photoUrl,
       points: user.points,
       hasClaimedWelcomePoints: user.hasClaimedWelcomePoints,
       dailyPlays: user.dailyPlays,
@@ -82,27 +82,27 @@ export async function POST(req) {
       );
     }
 
-    const referrerId = userData.referrerId || null;
+    const { id: telegramId, username, first_name, last_name, referrerId, photo_url } = userData;
 
     let user = await prisma.user.findUnique({
-      where: { telegramId: userData.id },
+      where: { telegramId },
       include: { taskCompletions: true },
     });
 
     if (!user) {
-      // New user creation logic
+      // Create a new user
       user = await prisma.user.create({
         data: {
-          telegramId: userData.id,
-          username: userData.username || "",
-          firstName: userData.first_name || "",
-          lastName: userData.last_name || "",
-          photo_url: userData.photo_url || "",
+          telegramId,
+          username: username || "",
+          firstName: first_name || "",
+          lastName: last_name || "",
+          photoUrl: photo_url || null, // Save photoUrl if provided
           points: 0,
           hasClaimedWelcomePoints: false,
           dailyPlays: 0,
-          referredByTelegramId: referrerId ? parseInt(referrerId) : null, // Attach referrer if provided
-          perkLevel: "none", // Set default perkLevel
+          referredByTelegramId: referrerId ? parseInt(referrerId) : null,
+          perkLevel: "none",
         },
       });
 
@@ -112,8 +112,7 @@ export async function POST(req) {
         });
 
         if (referrer) {
-          // Determine multiplier based on referrer's perkLevel
-          let multiplier = 1; // Default multiplier
+          let multiplier = 1;
           switch (referrer.perkLevel) {
             case "bronze":
               multiplier = 2;
@@ -135,10 +134,16 @@ export async function POST(req) {
           });
         }
       }
-    } else if (userData.photo_url) {
-      user = await prisma.user.update({
-        where: { telegramId: userData.id },
-        data: { photo_url: userData.photo_url },
+    } else {
+      // Update existing user data, including photoUrl if provided
+      await prisma.user.update({
+        where: { telegramId },
+        data: {
+          username: username || user.username,
+          firstName: first_name || user.firstName,
+          lastName: last_name || user.lastName,
+          photoUrl: photo_url || user.photoUrl, // Update photoUrl if provided
+        },
       });
     }
 
@@ -152,13 +157,13 @@ export async function POST(req) {
       username: user.username,
       firstName: user.firstName,
       lastName: user.lastName,
-      photo_url: user.photo_url,
+      photoUrl: user.photoUrl, // Include photoUrl in the response
       points: user.points,
       hasClaimedWelcomePoints: user.hasClaimedWelcomePoints,
       dailyPlays: user.dailyPlays,
-      referredByTelegramId: user.referredByTelegramId, // Include referral info
+      referredByTelegramId: user.referredByTelegramId,
       completedTaskIds,
-      perkLevel: user.perkLevel, // Include perkLevel
+      perkLevel: user.perkLevel,
     });
   } catch (error) {
     console.error("Error processing user data:", error);
