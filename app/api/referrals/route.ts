@@ -107,7 +107,6 @@ export async function GET(request: NextRequest) {
             username: true,
             firstName: true,
             lastName: true,
-            photo_url: true,
             createdAt: true,
             photoUrl: true
           },

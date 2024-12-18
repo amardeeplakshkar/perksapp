@@ -103,7 +103,7 @@ const Leaderboard = () => {
                       <div className="flex items-center gap-4">
                         <div>
                           <Avatar className='rounded-xl'>
-                            <AvatarImage src={user?.photo_url} />
+                            <AvatarImage src={user?.photoUrl} />
                             <AvatarFallback className='border-foreground bg-white rounded-xl'>
                               <FaAward fill='black' />
                             </AvatarFallback>
