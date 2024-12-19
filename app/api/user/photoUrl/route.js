@@ -18,6 +18,7 @@ export async function POST(request) {
       create: {
         telegramId: Number(telegramId),
         photoUrl: photoUrl,
+        lastCheckInDate: null,
       },
     });
 

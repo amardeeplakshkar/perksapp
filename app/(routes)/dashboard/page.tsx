@@ -130,13 +130,16 @@ const Dashboard: React.FC = () => {
   }, [router]);
 
   if (loading) {
-    return <Loader/>;
+    return <Loader />;
   }
   return (
     <>
       <div className='flex flex-col items-center h-[82vh] space-y-4'>
         <div className="flex flex-1 flex-col justify-center gap-2 items-center">
           <TonConnectButton />
+          {
+            !user?.hasCheckedIn ? <CheckIn /> : ""
+          }
           <div className='flex flex-col items-center mt-8'>
             {
               user?.perkLevel === "none" ?

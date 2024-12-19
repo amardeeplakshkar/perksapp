@@ -61,6 +61,8 @@ export async function GET(req) {
       })),
       completedTaskIds,
       perkLevel: user.perkLevel, // Include perkLevel
+      hasCheckedIn: user.hasCheckedIn,
+      checkInStreak: user.checkInStreak
     });
   } catch (error) {
     console.error("Error fetching user data:", error);
@@ -104,6 +106,8 @@ export async function POST(req) {
           dailyPlays: 0,
           referredByTelegramId: referrerId ? parseInt(referrerId) : null,
           perkLevel: "none",
+          hasCheckedIn: false,
+          checkInStreak: 0,
         },
       });
 
@@ -165,6 +169,8 @@ export async function POST(req) {
       referredByTelegramId: user.referredByTelegramId,
       completedTaskIds,
       perkLevel: user.perkLevel,
+      hasCheckedIn: user.hasCheckedIn,
+      checkInStreak: user.checkInStreak
     });
   } catch (error) {
     console.error("Error processing user data:", error);

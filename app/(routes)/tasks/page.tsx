@@ -29,6 +29,7 @@ interface User {
     completedTaskIds: string[];
     points?: number;
     photo_url: string
+    hasCheckedIn: boolean
 }
 
 interface InitDataUnsafe {
@@ -572,7 +573,6 @@ export default function Tasks() {
                 <TabsContent value="limited">
                     <Card>
                         <ScrollArea className="h-[50dvh]">
-                            <CheckIn />
                             {taskData.limited.map((task, index) => (
                                 <div key={task.id || index}>
                                     <TaskCard task={task} completedTasks={completedTasks} taskLoading={loadingTasks[task.id]} />

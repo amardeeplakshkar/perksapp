@@ -22,7 +22,6 @@ type UserData = {
   completedTaskIds: number[];
   photo_url: string;
   perkLevel: string;
-  lastCheckInDate: string;
 };
 
 export const useUserData = () => {

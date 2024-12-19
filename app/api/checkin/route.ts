@@ -23,14 +23,22 @@ export async function POST(req: Request) {
         }
 
         const today = new Date();
-        const { lastCheckInDate, checkInStreak, points } = user;
+        const { lastCheckInDate, checkInStreak, points, hasCheckedIn } = user;
+
+        // If today is a new date and hasCheckedIn is true, reset it to false
+        if (lastCheckInDate && !isSameDay(new Date(lastCheckInDate), today) && hasCheckedIn) {
+            await prisma.user.update({
+                where: { telegramId: parsedTelegramId },
+                data: { hasCheckedIn: false },
+            });
+        }
 
         // Initialize variables for response
         let updatedStreak = 0;
         let earnedPoints = 100; // Default points for check-in
 
         // Check if the user has already checked in today
-        if (lastCheckInDate && isSameDay(new Date(lastCheckInDate), today)) {
+        if (hasCheckedIn && isSameDay(new Date(lastCheckInDate), today)) {
             return NextResponse.json({
                 error: 'Already checked in today,\nTry again tomorrow!',
                 streak: checkInStreak,
@@ -55,6 +63,7 @@ export async function POST(req: Request) {
                 lastCheckInDate: today,
                 checkInStreak: updatedStreak,
                 points: updatedPoints,
+                hasCheckedIn: true, // Mark as checked in for today
             },
         });
 
