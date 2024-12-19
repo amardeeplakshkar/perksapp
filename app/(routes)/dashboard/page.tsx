@@ -12,6 +12,7 @@ import Perks from 'components/Perks';
 import ShinyButton from 'components/ui/shiny-button';
 import { useUserData } from 'components/hooks/useUserData';
 import Loader from 'components/Loader';
+import CheckIn from 'components/CheckIn';
 
 const Dashboard: React.FC = () => {
   const [user, setUser] = useState(null);

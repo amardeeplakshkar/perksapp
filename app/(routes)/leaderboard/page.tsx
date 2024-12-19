@@ -39,7 +39,7 @@ const Leaderboard = () => {
 
     const intervalId = setInterval(() => {
       fetchTopUsers();
-    }, 600000); 
+    }, 10000); 
 
     
     return () => clearInterval(intervalId);

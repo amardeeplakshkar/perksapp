@@ -11,11 +11,13 @@ import { TASKS } from '../../../utils/tasks';
 import { useTonConnectUI } from '@tonconnect/ui-react';
 import toast from 'react-hot-toast';
 import LogoHeader from 'components/LogoHeader';
-import { FaAward, FaLink, FaTelegramPlane, FaTwitter, FaWallet } from 'react-icons/fa';
+import { FaAward, FaCoins, FaLink, FaTelegramPlane, FaTwitter, FaWallet } from 'react-icons/fa';
 import { BsPeopleFill, BsTwitterX } from 'react-icons/bs';
 import DynamicSVGIcon from 'components/icon';
 import { useUserData } from 'components/hooks/useUserData';
 import Loader from 'components/Loader';
+import CheckIn from 'components/CheckIn';
+import { Avatar } from 'components/ui/avatar';
 
 
 const recipient = process.env.NEXT_PUBLIC_TON_WALLET_ADDRESS;
@@ -96,14 +98,14 @@ export default function Tasks() {
 
     const handleMembershipTask = (taskId: string, taskReward: number, taskTitle: string, taskPath: string) => async () => {
         window.open(taskPath, "_blank");
-    
+
         if (!user?.telegramId) {
             alert('This app can only be used within Telegram');
             return;
         }
-    
+
         setIsLoading(true);
-    
+
         try {
             // Check if the user is a member of the channel
             const membershipResponse = await fetch('/api/check-membership', {
@@ -114,18 +116,18 @@ export default function Tasks() {
                     channelUsername: `@perkscommunity`,
                 }),
             });
-    
+
             if (!membershipResponse.ok) {
                 const errorData = await membershipResponse.json();
                 throw new Error(errorData.error || 'Failed to check membership');
             }
-    
+
             const membershipData = await membershipResponse.json();
             if (!membershipData.isMember) {
                 toast.error('You are not a member of the channel. Please join the channel to complete the task.');
                 return;
             }
-    
+
             // User is a member, proceed with completing the task
             const taskResponse = await fetch("/api/complete-task", {
                 method: "POST",
@@ -136,25 +138,25 @@ export default function Tasks() {
                     points: taskReward,
                 }),
             });
-    
+
             const taskData = await taskResponse.json();
-    
+
             if (!taskResponse.ok) {
                 throw new Error(taskData.error || "Failed to complete task.");
             }
-    
+
             // Update the user points
             setUser((prevUser) => ({
                 ...prevUser!,
                 points: (prevUser?.points || 0) + taskReward,
             }));
-    
+
             // Mark the task as completed
             setCompletedTasks((prev) => ({
                 ...prev,
                 [taskId]: true,
             }));
-    
+
             toast.success(`${taskTitle} task completed and points added successfully! 🎉`);
         } catch (error: any) {
             console.error('Error handling membership task:', error);
@@ -165,7 +167,7 @@ export default function Tasks() {
             setAnyLoading(false);
         }
     };
-    
+
 
     const handleJoinPartnerTask = (taskId: string, taskReward: number, taskTitle: string, taskPath: string) => async () => {
 
@@ -353,9 +355,9 @@ export default function Tasks() {
         }
 
         try {
-            const originalValue = 0.5 * 1e9; 
+            const originalValue = 0.5 * 1e9;
 
-            let discountPercentage = 0; 
+            let discountPercentage = 0;
             switch (userData?.perkLevel) {
                 case "silver":
                     discountPercentage = 20;
@@ -370,7 +372,7 @@ export default function Tasks() {
 
             const discountedValue = originalValue * (1 - discountPercentage / 100);
             const discountedValueString = discountedValue.toString();
-        
+
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now() / 1000) + 60,
                 messages: [
@@ -412,8 +414,8 @@ export default function Tasks() {
     }, [tonConnectUI, router, user]);
 
     if (loading) {
-        return <Loader/>;
-      }
+        return <Loader />;
+    }
 
     const taskData = {
         limited: [
@@ -570,6 +572,7 @@ export default function Tasks() {
                 <TabsContent value="limited">
                     <Card>
                         <ScrollArea className="h-[50dvh]">
+                            <CheckIn />
                             {taskData.limited.map((task, index) => (
                                 <div key={task.id || index}>
                                     <TaskCard task={task} completedTasks={completedTasks} taskLoading={loadingTasks[task.id]} />
