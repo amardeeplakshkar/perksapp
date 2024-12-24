@@ -21,7 +21,7 @@ export default function RootLayout({
          <link rel="stylesheet" href="https://raw.githubusercontent.com/stoXmod/FontAwesome-pro/refs/heads/master/assets/js/pro.min.js"/>
          <link rel="stylesheet" href="https://raw.githubusercontent.com/stoXmod/FontAwesome-pro/refs/heads/master/assets/css/all.min.css"/>
         <ScrollArea className="flex-1">
-          <TonConnectUIProvider manifestUrl="https://apricot-selected-dog-88.mypinata.cloud/ipfs/QmXvaFWgecTknsxyq4zASJSHMCqKJ3vXz2KgFnejC6oGHu">
+          <TonConnectUIProvider manifestUrl="https://apricot-selected-dog-88.mypinata.cloud/ipfs/bafkreic6usgjlpgwbel6rhlk53mizinsrstjmclaznas353clu6zarjfua">
             {children}
           </TonConnectUIProvider>
         </ScrollArea>
